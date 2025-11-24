@@ -19,11 +19,12 @@ import type { CreateClassPayload, UpdateClassPayload } from './types';
 /**
  * Hook to fetch classes for a date range
  */
-export function useClasses(startDate: string, endDate: string) {
+export function useClasses(startDate: string, endDate: string, enabled: boolean = true) {
   return useQuery({
     queryKey: ['classes', startDate, endDate],
     queryFn: () => fetchClasses(startDate, endDate),
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: enabled && !!startDate && !!endDate,
   });
 }
 

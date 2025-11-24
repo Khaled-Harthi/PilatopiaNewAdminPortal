@@ -1,21 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ScheduleCalendar } from '@/components/schedule/schedule-calendar-new';
 import { RegistrationModal } from '@/components/schedule/registration-modal';
 import { CreateClassSheet } from '@/components/schedule/create-class-sheet';
-import { BulkClassSheet } from '@/components/schedule/bulk-class-sheet';
 import { EditClassSheet } from '@/components/schedule/edit-class-sheet';
 import { DeleteClassDialog } from '@/components/schedule/delete-class-dialog';
 import type { PilatesClass } from '@/lib/schedule/types';
 
 export default function SchedulePage() {
+  const router = useRouter();
+  const locale = useLocale();
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
   const [selectedClassData, setSelectedClassData] = useState<PilatesClass | null>(null);
   const [registrationModalOpen, setRegistrationModalOpen] = useState(false);
   const [createClassSheetOpen, setCreateClassSheetOpen] = useState(false);
-  const [bulkClassSheetOpen, setBulkClassSheetOpen] = useState(false);
   const [editClassSheetOpen, setEditClassSheetOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -46,8 +48,8 @@ export default function SchedulePage() {
   };
 
   const handleAddSchedule = () => {
-    // Open bulk class sheet for creating multiple classes
-    setBulkClassSheetOpen(true);
+    // Navigate to bulk create page
+    router.push(`/${locale}/schedule/bulk-create`);
   };
 
   const handleEditClass = (classData: PilatesClass) => {
@@ -82,11 +84,6 @@ export default function SchedulePage() {
           onOpenChange={setCreateClassSheetOpen}
           defaultDate={selectedDate}
           defaultTime={selectedTime}
-        />
-
-        <BulkClassSheet
-          open={bulkClassSheetOpen}
-          onOpenChange={setBulkClassSheetOpen}
         />
 
         <EditClassSheet

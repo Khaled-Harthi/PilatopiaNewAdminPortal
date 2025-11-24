@@ -329,10 +329,10 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side={locale === 'ar' ? 'left' : 'right'}
-        className="sm:max-w-4xl overflow-y-auto"
+        className="sm:max-w-[39rem] overflow-y-auto"
       >
-        <SheetHeader className="space-y-3 pb-6">
-          <SheetTitle>{locale === 'ar' ? 'إنشاء جدول حصص' : 'Create Class Schedule'}</SheetTitle>
+        <SheetHeader className="space-y-2 py-6 px-6">
+          <SheetTitle className="text-2xl">{locale === 'ar' ? 'إنشاء جدول حصص' : 'Create Class Schedule'}</SheetTitle>
           <SheetDescription>
             {locale === 'ar'
               ? 'قم بإنشاء حصص متعددة بنقرة واحدة'
@@ -341,14 +341,14 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
         </SheetHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 mt-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12 mt-6 px-6">
             {/* Step 1: Define Class Details */}
             <div className="space-y-6">
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-base font-semibold text-foreground">
                 {locale === 'ar' ? 'الخطوة 1: تفاصيل الحصة' : 'Step 1: Define Class Details'}
               </h3>
 
-              <div className="space-y-5">
+              <div className="space-y-6">
                 {/* Class Type and Instructor - Side by side on desktop */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
@@ -410,8 +410,8 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
                   />
                 </div>
 
-                {/* Duration and Capacity */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* Duration and Capacity - Side by side on desktop */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="durationMinutes"
@@ -460,45 +460,47 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
                   />
                 </div>
 
-                {/* Room */}
-                <FormField
-                  control={form.control}
-                  name="classRoomId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{locale === 'ar' ? 'الغرفة' : 'Room'}</FormLabel>
-                      <Select
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        value={field.value?.toString()}
-                        disabled={roomsLoading}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={locale === 'ar' ? 'اختر الغرفة' : 'Select room'} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {rooms?.map((room) => (
-                            <SelectItem key={room.id} value={room.id.toString()}>
-                              {room.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* Room - aligned with grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="classRoomId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{locale === 'ar' ? 'الغرفة' : 'Room'}</FormLabel>
+                        <Select
+                          onValueChange={(value) => field.onChange(Number(value))}
+                          value={field.value?.toString()}
+                          disabled={roomsLoading}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder={locale === 'ar' ? 'اختر الغرفة' : 'Select room'} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {rooms?.map((room) => (
+                              <SelectItem key={room.id} value={room.id.toString()}>
+                                {room.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </div>
 
             {/* Step 2: Select Time Slots */}
             <div className="space-y-6">
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-base font-semibold text-foreground">
                 {locale === 'ar' ? 'الخطوة 2: اختر الأوقات' : 'Step 2: Select Time Slots'}
               </h3>
 
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <p className="text-sm text-muted-foreground">
                   {locale === 'ar' ? 'انقر لتحديد أوقات متعددة:' : 'Click to select multiple times:'}
                 </p>
@@ -541,14 +543,14 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
 
                 {/* Time slot grid */}
                 <div className="overflow-x-auto">
-                  <table className="w-full border-collapse text-xs">
+                  <table className="w-full border-collapse text-sm">
                     <thead>
                       <tr>
-                        <th className="border p-1 bg-muted/50"></th>
+                        <th className="border p-2 bg-muted/50"></th>
                         {DAYS.map((day, index) => (
                           <th
                             key={day}
-                            className="border p-1 bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
+                            className="border p-2 bg-muted/50 cursor-pointer hover:bg-muted transition-colors font-semibold"
                             onClick={() => toggleColumn(index)}
                           >
                             {locale === 'ar' ? DAYS_AR[index] : day}
@@ -560,7 +562,7 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
                       {HOURS.map((hour) => (
                         <tr key={hour}>
                           <td
-                            className="border p-1 bg-muted/50 text-center cursor-pointer hover:bg-muted transition-colors font-medium"
+                            className="border p-2 bg-muted/50 text-center cursor-pointer hover:bg-muted transition-colors font-medium"
                             onClick={() => toggleRow(hour)}
                           >
                             {hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
@@ -569,7 +571,7 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
                             <td
                               key={`${dayIndex}-${hour}`}
                               className={cn(
-                                'border p-1 text-center cursor-pointer transition-colors',
+                                'border p-2 text-center cursor-pointer transition-colors min-w-[3rem]',
                                 selectedSlots[dayIndex]?.[hour]
                                   ? 'bg-primary text-primary-foreground'
                                   : 'hover:bg-muted'
@@ -600,11 +602,11 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
 
             {/* Step 3: Repeat Pattern */}
             <div className="space-y-6">
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-base font-semibold text-foreground">
                 {locale === 'ar' ? 'الخطوة 3: نمط التكرار' : 'Step 3: Repeat Pattern'}
               </h3>
 
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <FormField
                   control={form.control}
                   name="repeatPattern"
@@ -713,7 +715,7 @@ export function BulkClassSheet({ open, onOpenChange }: BulkClassSheetProps) {
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-end gap-3 pt-6">
+            <div className="flex justify-end gap-3 pt-6 pb-6">
               <Button
                 type="button"
                 variant="outline"
