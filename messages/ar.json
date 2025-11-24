@@ -1,0 +1,182 @@
+{
+  "Login": {
+    "title": "تسجيل الدخول",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "error": "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد الخاصة بك.",
+    "loading": "جاري التحميل..."
+  },
+  "Navigation": {
+    "home": "الرئيسية",
+    "members": "الأعضاء",
+    "schedule": "الجدول",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "LanguageSwitcher": {
+    "label": "اللغة",
+    "arabic": "العربية",
+    "english": "English"
+  },
+  "Common": {
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ",
+    "success": "نجح",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "back": "رجوع",
+    "next": "التالي",
+    "done": "تم",
+    "close": "إغلاق"
+  },
+  "MemberProfile": {
+    "title": "الملف الشخصي للعضو",
+    "loading": "جاري التحميل...",
+    "notFound": "العضو غير موجود",
+    "status": {
+      "active": "نشط",
+      "expired": "منتهي",
+      "noMembership": "لا يوجد اشتراك"
+    },
+    "joinedDaysAgo": "انضم منذ {days} أيام",
+    "joinedMonthsAgo": "انضم منذ {months} أشهر",
+    "joinedYearsAgo": "انضم منذ {years} سنوات",
+    "points": "{points} نقطة",
+    "Bookings": {
+      "title": "الحجوزات",
+      "createBooking": "إنشاء حجز",
+      "loading": "جاري التحميل...",
+      "noBookingsFound": "لا توجد حجوزات. قم بإنشاء حجز للبدء.",
+      "tableHeaders": {
+        "className": "اسم الحصة",
+        "classType": "نوع الحصة",
+        "dateTime": "التاريخ والوقت",
+        "instructor": "المدربة"
+      },
+      "actions": {
+        "cancel": "إلغاء"
+      },
+      "pagination": {
+        "page": "صفحة",
+        "of": "من",
+        "totalBookings": "إجمالي الحجوزات",
+        "previous": "السابق",
+        "next": "التالي"
+      },
+      "createDialog": {
+        "title": "إنشاء حجز",
+        "description": "اختر التاريخ والحصة المتاحة لإنشاء الحجز.",
+        "dateLabel": "التاريخ",
+        "pickDate": "اختر تاريخ",
+        "availableClassesLabel": "الحصص المتاحة",
+        "loadingClasses": "جاري تحميل الحصص...",
+        "noClassesAvailable": "لا توجد حصص متاحة في هذا التاريخ.",
+        "selectClass": "اختر حصة",
+        "seats": "مقاعد",
+        "creating": "جاري الإنشاء...",
+        "createButton": "إنشاء حجز"
+      },
+      "alerts": {
+        "confirmCancel": "هل أنت متأكد من إلغاء هذا الحجز؟",
+        "cancelFailed": "فشل إلغاء الحجز",
+        "selectClass": "الرجاء اختيار حصة",
+        "createFailed": "فشل إنشاء الحجز"
+      },
+      "dateTime": {
+        "today": "اليوم",
+        "tomorrow": "غداً",
+        "inDays": "بعد {days} أيام"
+      }
+    },
+    "Memberships": {
+      "title": "الاشتراكات",
+      "addMembership": "إضافة اشتراك",
+      "loading": "جاري التحميل...",
+      "noMembershipsFound": "لا توجد اشتراكات. قم بإضافة اشتراك للبدء.",
+      "membershipNumber": "اشتراك #{id}",
+      "tableHeaders": {
+        "planName": "اسم الباقة",
+        "startDate": "تاريخ البدء",
+        "usage": "الاستخدام",
+        "remaining": "المتبقي",
+        "pricePaid": "المبلغ المدفوع",
+        "status": "الحالة"
+      },
+      "status": {
+        "startsToday": "يبدأ اليوم",
+        "startsInDays": "يبدأ بعد {days} أيام",
+        "expired": "منتهي",
+        "expiresToday": "ينتهي اليوم",
+        "expiresInDays": "ينتهي بعد {days} أيام"
+      },
+      "actions": {
+        "extend": "تمديد",
+        "addClass": "إضافة حصة"
+      }
+    },
+    "AddMembership": {
+      "title": "إضافة اشتراك",
+      "step": "الخطوة {current} من {total}",
+      "step1": {
+        "title": "اختر باقة الاشتراك",
+        "loadingPlans": "جاري تحميل الباقات...",
+        "noPlansAvailable": "لا توجد باقات متاحة",
+        "classes": "حصص",
+        "validFor": "صالح لمدة",
+        "days": "أيام"
+      },
+      "step2": {
+        "title": "رمز الخصم (اختياري)",
+        "label": "أدخل رمز الخصم",
+        "placeholder": "أدخل الرمز",
+        "validate": "تحقق",
+        "validating": "جاري التحقق...",
+        "originalPrice": "السعر الأصلي:",
+        "discount": "الخصم:",
+        "finalPrice": "السعر النهائي:"
+      },
+      "step3": {
+        "title": "تفاصيل الدفع",
+        "paymentMethodLabel": "طريقة الدفع",
+        "paymentMethods": {
+          "cash": "نقدي",
+          "card": "بطاقة",
+          "bankTransfer": "تحويل بنكي"
+        },
+        "startDateLabel": "تاريخ البدء",
+        "notesLabel": "ملاحظات (اختياري)",
+        "notesPlaceholder": "أضف أي ملاحظات هنا..."
+      },
+      "step4": {
+        "title": "تأكيد الشراء",
+        "purchaseSummary": "ملخص الشراء",
+        "plan": "الباقة:",
+        "startDate": "تاريخ البدء:",
+        "validUntil": "صالح حتى:",
+        "originalPrice": "السعر الأصلي:",
+        "discountApplied": "الخصم المطبق:",
+        "percentOff": "خصم {percent}٪",
+        "finalAmount": "المبلغ النهائي:",
+        "total": "الإجمالي:",
+        "paymentMethod": "طريقة الدفع:",
+        "processing": "جاري المعالجة...",
+        "confirmButton": "تأكيد الشراء"
+      },
+      "step5": {
+        "title": "تمت عملية الشراء بنجاح!",
+        "message": "تم إضافة الاشتراك إلى حساب العضو."
+      },
+      "errors": {
+        "failedToLoad": "فشل تحميل باقات الاشتراك",
+        "failedToValidate": "فشل التحقق من رمز الخصم",
+        "failedToCreate": "فشل إنشاء الاشتراك"
+      }
+    }
+  }
+}

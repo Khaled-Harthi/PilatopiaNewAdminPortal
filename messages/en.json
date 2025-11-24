@@ -1,0 +1,182 @@
+{
+  "Login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Login",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "error": "Login failed. Please check your credentials.",
+    "loading": "Loading..."
+  },
+  "Navigation": {
+    "home": "Home",
+    "members": "Members",
+    "schedule": "Schedule",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "LanguageSwitcher": {
+    "label": "Language",
+    "arabic": "العربية",
+    "english": "English"
+  },
+  "Common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "close": "Close"
+  },
+  "MemberProfile": {
+    "title": "Member Profile",
+    "loading": "Loading...",
+    "notFound": "Member not found",
+    "status": {
+      "active": "Active",
+      "expired": "Expired",
+      "noMembership": "No Membership"
+    },
+    "joinedDaysAgo": "Joined {days} days ago",
+    "joinedMonthsAgo": "Joined {months} months ago",
+    "joinedYearsAgo": "Joined {years} years ago",
+    "points": "{points} Points",
+    "Bookings": {
+      "title": "Bookings",
+      "createBooking": "Create Booking",
+      "loading": "Loading...",
+      "noBookingsFound": "No bookings found. Create a booking to get started.",
+      "tableHeaders": {
+        "className": "Class Name",
+        "classType": "Class Type",
+        "dateTime": "Date & Time",
+        "instructor": "Instructor"
+      },
+      "actions": {
+        "cancel": "Cancel"
+      },
+      "pagination": {
+        "page": "Page",
+        "of": "of",
+        "totalBookings": "total bookings",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "createDialog": {
+        "title": "Create Booking",
+        "description": "Select a date and available class to create a booking.",
+        "dateLabel": "Date",
+        "pickDate": "Pick a date",
+        "availableClassesLabel": "Available Classes",
+        "loadingClasses": "Loading classes...",
+        "noClassesAvailable": "No classes available for this date.",
+        "selectClass": "Select a class",
+        "seats": "seats",
+        "creating": "Creating...",
+        "createButton": "Create Booking"
+      },
+      "alerts": {
+        "confirmCancel": "Are you sure you want to cancel this booking?",
+        "cancelFailed": "Failed to cancel booking",
+        "selectClass": "Please select a class",
+        "createFailed": "Failed to create booking"
+      },
+      "dateTime": {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "inDays": "in {days} days"
+      }
+    },
+    "Memberships": {
+      "title": "Memberships",
+      "addMembership": "Add Membership",
+      "loading": "Loading...",
+      "noMembershipsFound": "No memberships found. Add a membership to get started.",
+      "membershipNumber": "Membership #{id}",
+      "tableHeaders": {
+        "planName": "Plan Name",
+        "startDate": "Start Date",
+        "usage": "Usage",
+        "remaining": "Remaining",
+        "pricePaid": "Price Paid",
+        "status": "Status"
+      },
+      "status": {
+        "startsToday": "Starts Today",
+        "startsInDays": "Starts in {days} days",
+        "expired": "Expired",
+        "expiresToday": "Expires Today",
+        "expiresInDays": "Expires in {days} days"
+      },
+      "actions": {
+        "extend": "Extend",
+        "addClass": "Add Class"
+      }
+    },
+    "AddMembership": {
+      "title": "Add Membership",
+      "step": "Step {current} of {total}",
+      "step1": {
+        "title": "Select Membership Plan",
+        "loadingPlans": "Loading plans...",
+        "noPlansAvailable": "No plans available",
+        "classes": "classes",
+        "validFor": "Valid for",
+        "days": "days"
+      },
+      "step2": {
+        "title": "Promo Code (Optional)",
+        "label": "Enter Promo Code",
+        "placeholder": "Enter code",
+        "validate": "Validate",
+        "validating": "Validating...",
+        "originalPrice": "Original Price:",
+        "discount": "Discount:",
+        "finalPrice": "Final Price:"
+      },
+      "step3": {
+        "title": "Payment Details",
+        "paymentMethodLabel": "Payment Method",
+        "paymentMethods": {
+          "cash": "Cash",
+          "card": "Card",
+          "bankTransfer": "Bank Transfer"
+        },
+        "startDateLabel": "Start Date",
+        "notesLabel": "Notes (Optional)",
+        "notesPlaceholder": "Add any notes here..."
+      },
+      "step4": {
+        "title": "Confirm Purchase",
+        "purchaseSummary": "Purchase Summary",
+        "plan": "Plan:",
+        "startDate": "Start Date:",
+        "validUntil": "Valid Until:",
+        "originalPrice": "Original Price:",
+        "discountApplied": "Discount Applied:",
+        "percentOff": "{percent}% off",
+        "finalAmount": "Final Amount:",
+        "total": "Total:",
+        "paymentMethod": "Payment Method:",
+        "processing": "Processing...",
+        "confirmButton": "Confirm Purchase"
+      },
+      "step5": {
+        "title": "Purchase Successful!",
+        "message": "The membership has been added to the member's account."
+      },
+      "errors": {
+        "failedToLoad": "Failed to load membership plans",
+        "failedToValidate": "Failed to validate promo code",
+        "failedToCreate": "Failed to create membership"
+      }
+    }
+  }
+}
