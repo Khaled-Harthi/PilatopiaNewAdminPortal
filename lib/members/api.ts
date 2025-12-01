@@ -74,79 +74,77 @@ export async function fetchMemberActivity(memberId: string): Promise<MemberActiv
 // Member Memberships API
 // ============================================
 
-// Raw transaction response from API
-interface RawTransaction {
+// Raw membership response from API
+interface RawMembership {
   id: number;
-  purchaseDate: string;
-  startDate: string;
   planName: string;
-  classCount: number;
-  membershipId: number;
-  pricePaid: string;
+  planId: number;
+  originalBalance: number;
+  adjustments: number;
   usedBalance: number;
   remainingBalance: number;
-  expiryDate: string;
+  startsAt: string;
+  expiresAt: string;
+  status: string;
+  createdAt: string;
 }
 
 /**
- * Fetches member's memberships from transactions endpoint
+ * Fetches member's memberships
  */
 export async function fetchMemberMemberships(memberId: string): Promise<MembershipsResponse> {
   const response = await apiClient.get<{
-    transactions: RawTransaction[];
+    memberships: RawMembership[];
     pagination: {
-      current_page: number;
-      total_pages: number | null;
-      total_items: number | null;
-      items_per_page: number;
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
     };
-  }>(`/admin/members/${memberId}/transactions`);
+  }>(`/admin/members/${memberId}/memberships`);
 
-  const transactions = response.data.transactions || [];
+  const rawMemberships = response.data.memberships || [];
 
-  if (transactions.length === 0) {
+  if (rawMemberships.length === 0) {
     return {
       success: true,
       current: [],
       upcoming: [],
       past: [],
-      total_spent: 0,
-      total_purchases: 0,
     };
   }
 
-  // Determine membership state based on dates and balance
-  const getMembershipState = (tx: RawTransaction): 'active' | 'upcoming' | 'expiring' | 'expired' => {
+  // Determine membership state based on API status, dates, and balance
+  const getMembershipState = (m: RawMembership): 'active' | 'upcoming' | 'expiring' | 'expired' => {
     const now = new Date();
-    const start = new Date(tx.startDate);
-    const expiry = new Date(tx.expiryDate);
+    const start = new Date(m.startsAt);
+    const expiry = new Date(m.expiresAt);
     const daysUntilExpiry = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
     if (start > now) return 'upcoming';
-    if (expiry < now) return 'expired';
-    if (tx.remainingBalance === 0) return 'expired'; // No classes left
+    if (m.status === 'expired' || expiry < now) return 'expired';
+    if (m.remainingBalance === 0) return 'expired'; // No classes left
     if (daysUntilExpiry <= 7) return 'expiring';
     return 'active';
   };
 
-  // Transform transactions to Membership format
-  const memberships = transactions.map((tx) => ({
-    id: String(tx.membershipId),
-    plan_name: tx.planName,
-    plan_id: 0,
-    start_date: tx.startDate,
-    expiry_date: tx.expiryDate,
-    class_count: tx.classCount,
-    used_classes: tx.usedBalance,
-    remaining_classes: tx.remainingBalance,
-    price_paid: parseFloat(tx.pricePaid),
-    state: getMembershipState(tx),
-    purchase_date: tx.purchaseDate,
+  // Transform to Membership format
+  const memberships = rawMemberships.map((m) => ({
+    id: String(m.id),
+    plan_name: m.planName,
+    plan_id: m.planId,
+    start_date: m.startsAt,
+    expiry_date: m.expiresAt,
+    class_count: m.originalBalance + m.adjustments,
+    used_classes: m.usedBalance,
+    remaining_classes: m.remainingBalance,
+    state: getMembershipState(m),
+    created_at: m.createdAt,
   }));
 
-  // Sort by purchase date descending
+  // Sort by created_at descending
   memberships.sort((a, b) =>
-    new Date(b.purchase_date).getTime() - new Date(a.purchase_date).getTime()
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
   // Find all current (active or expiring) memberships
@@ -158,17 +156,11 @@ export async function fetchMemberMemberships(memberId: string): Promise<Membersh
   // Past memberships (expired only)
   const past = memberships.filter((m) => m.state === 'expired');
 
-  // Calculate totals
-  const total_spent = memberships.reduce((sum, m) => sum + m.price_paid, 0);
-  const total_purchases = memberships.length;
-
   return {
     success: true,
     current,
     upcoming,
     past,
-    total_spent,
-    total_purchases,
   };
 }
 

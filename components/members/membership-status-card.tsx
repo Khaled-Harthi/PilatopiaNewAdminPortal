@@ -65,16 +65,11 @@ function MembershipCard({
 
   return (
     <div className="border rounded-xl p-3 md:p-4">
-      {/* Package Name + Badge + Price */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm">{membership.plan_name}</h3>
-          <span className={cn('text-xs px-2 py-0.5 rounded-full', stateBadgeClass)}>
-            {stateLabel}
-          </span>
-        </div>
-        <span className="text-sm text-muted-foreground">
-          SAR {membership.price_paid.toLocaleString()}
+      {/* Package Name + Badge */}
+      <div className="flex items-center gap-2 mb-3">
+        <h3 className="font-semibold text-sm">{membership.plan_name}</h3>
+        <span className={cn('text-xs px-2 py-0.5 rounded-full', stateBadgeClass)}>
+          {stateLabel}
         </span>
       </div>
 

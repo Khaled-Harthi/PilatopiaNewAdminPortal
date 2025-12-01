@@ -91,11 +91,8 @@ export function MembershipSection({
               </p>
 
               <div className="space-y-4">
-                <div className="flex items-start justify-between">
+                <div>
                   <p className="font-medium">{current.plan_name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {currency} {current.price_paid.toLocaleString()}
-                  </p>
                 </div>
 
                 <MembershipProgress
@@ -146,11 +143,8 @@ export function MembershipSection({
                     {formatStartText(membership.start_date).toUpperCase()}
                   </p>
 
-                  <div className="flex items-start justify-between">
+                  <div>
                     <p className="font-medium">{membership.plan_name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {currency} {membership.price_paid.toLocaleString()}
-                    </p>
                   </div>
 
                   <p className="text-sm text-green-600">

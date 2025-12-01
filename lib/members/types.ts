@@ -75,9 +75,8 @@ export interface Membership {
   class_count: number;
   used_classes: number;
   remaining_classes: number;
-  price_paid: number;
   state: MembershipState;
-  purchase_date: string;
+  created_at: string;
 }
 
 export interface MembershipsResponse {
@@ -85,8 +84,6 @@ export interface MembershipsResponse {
   current: Membership[];
   upcoming: Membership[];
   past: Membership[];
-  total_spent: number;
-  total_purchases: number;
 }
 
 // ============================================

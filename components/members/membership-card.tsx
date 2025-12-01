@@ -71,9 +71,8 @@ export function MembershipCard({ current, onAddNew, onExtendExpiry, onAddClass }
       </div>
 
       {/* Plan info */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3">
         <h2 className="font-semibold">{current.plan_name}</h2>
-        <p className="text-sm font-medium">SAR {current.price_paid.toLocaleString()}</p>
       </div>
 
       {/* Progress Bar */}
