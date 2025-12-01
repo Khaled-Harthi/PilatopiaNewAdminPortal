@@ -3,14 +3,14 @@
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Membership } from '@/lib/members/types';
+import type { Membership, MembershipState } from '@/lib/members/types';
 import { differenceInDays, parseISO } from 'date-fns';
 
 interface MembershipStatusCardProps {
-  current: Membership | null;
+  current: Membership[];
   onAddMembership: () => void;
-  onExtendExpiry?: () => void;
-  onAddClass?: () => void;
+  onExtendExpiry?: (membership: Membership) => void;
+  onAddClass?: (membership: Membership) => void;
 }
 
 function getExpiryInfo(expiryDate: string): { daysLeft: number; text: string; urgency: 'normal' | 'warning' | 'critical' } {
@@ -32,38 +32,49 @@ function getExpiryInfo(expiryDate: string): { daysLeft: number; text: string; ur
   return { daysLeft, text: `Expires in ${daysLeft} days`, urgency: 'normal' };
 }
 
-export function MembershipStatusCard({
-  current,
-  onAddMembership,
+function getStateBadge(state: MembershipState): { label: string; className: string } {
+  switch (state) {
+    case 'active':
+      return { label: 'Active', className: 'bg-green-500/10 text-green-600' };
+    case 'expiring':
+      return { label: 'Expiring Soon', className: 'bg-orange-500/10 text-orange-600' };
+    case 'expired':
+      return { label: 'Expired', className: 'bg-red-500/10 text-red-600' };
+    case 'upcoming':
+      return { label: 'Upcoming', className: 'bg-blue-500/10 text-blue-600' };
+    default:
+      return { label: state, className: 'bg-muted text-muted-foreground' };
+  }
+}
+
+function MembershipCard({
+  membership,
   onExtendExpiry,
   onAddClass,
-}: MembershipStatusCardProps) {
-  // No active membership state
-  if (!current) {
-    return (
-      <div className="border rounded-xl p-3 md:p-4">
-        <p className="text-sm text-muted-foreground mb-3">No active membership</p>
-        <Button onClick={onAddMembership} className="gap-2 w-full sm:w-auto">
-          <Plus className="h-4 w-4" />
-          Add Membership
-        </Button>
-      </div>
-    );
-  }
-
-  const remaining = current.remaining_classes;
-  const total = current.class_count;
+}: {
+  membership: Membership;
+  onExtendExpiry?: (membership: Membership) => void;
+  onAddClass?: (membership: Membership) => void;
+}) {
+  const remaining = membership.remaining_classes;
+  const total = membership.class_count;
   const used = total - remaining;
   const progressPercent = total > 0 ? (used / total) * 100 : 0;
-  const { text: expiryText, urgency } = getExpiryInfo(current.expiry_date);
+  const { text: expiryText, urgency } = getExpiryInfo(membership.expiry_date);
+  const { label: stateLabel, className: stateBadgeClass } = getStateBadge(membership.state);
 
   return (
     <div className="border rounded-xl p-3 md:p-4">
-      {/* Package Name + Price */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-sm">{current.plan_name}</h3>
+      {/* Package Name + Badge + Price */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-sm">{membership.plan_name}</h3>
+          <span className={cn('text-xs px-2 py-0.5 rounded-full', stateBadgeClass)}>
+            {stateLabel}
+          </span>
+        </div>
         <span className="text-sm text-muted-foreground">
-          SAR {current.price_paid.toLocaleString()}
+          SAR {membership.price_paid.toLocaleString()}
         </span>
       </div>
 
@@ -102,16 +113,54 @@ export function MembershipStatusCard({
       {/* Actions - Full-width grid on mobile, inline on desktop */}
       <div className="grid grid-cols-2 gap-2 md:flex md:gap-2">
         {onExtendExpiry && (
-          <Button variant="ghost" size="sm" className="w-full md:w-auto" onClick={onExtendExpiry}>
+          <Button variant="ghost" size="sm" className="w-full md:w-auto" onClick={() => onExtendExpiry(membership)}>
             Extend Expiry
           </Button>
         )}
         {onAddClass && (
-          <Button size="sm" className="w-full md:w-auto" onClick={onAddClass}>
+          <Button size="sm" className="w-full md:w-auto" onClick={() => onAddClass(membership)}>
             Add Class
           </Button>
         )}
       </div>
+    </div>
+  );
+}
+
+export function MembershipStatusCard({
+  current,
+  onAddMembership,
+  onExtendExpiry,
+  onAddClass,
+}: MembershipStatusCardProps) {
+  // No active membership state
+  if (!current || current.length === 0) {
+    return (
+      <div className="border rounded-xl p-3 md:p-4">
+        <p className="text-sm text-muted-foreground mb-3">No active membership</p>
+        <Button onClick={onAddMembership} className="gap-2 w-full sm:w-auto">
+          <Plus className="h-4 w-4" />
+          Add Membership
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {current.map((membership) => (
+        <MembershipCard
+          key={membership.id}
+          membership={membership}
+          onExtendExpiry={onExtendExpiry}
+          onAddClass={onAddClass}
+        />
+      ))}
+      {/* Add another membership button */}
+      <Button variant="outline" onClick={onAddMembership} className="gap-2 w-full sm:w-auto">
+        <Plus className="h-4 w-4" />
+        Add Another Membership
+      </Button>
     </div>
   );
 }

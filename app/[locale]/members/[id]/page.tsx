@@ -24,6 +24,7 @@ import { BookClassDialog } from '@/components/members/book-class-dialog';
 import { AdjustBalanceDialog } from '@/components/members/adjust-balance-dialog';
 import { ExtendExpiryDialog } from '@/components/members/extend-expiry-dialog';
 import { AddMembershipWizard } from '@/components/member/AddMembershipWizard';
+import type { Membership } from '@/lib/members/types';
 
 export default function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -34,6 +35,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
   const [isBookClassOpen, setIsBookClassOpen] = useState(false);
   const [isAdjustBalanceOpen, setIsAdjustBalanceOpen] = useState(false);
   const [isExtendExpiryOpen, setIsExtendExpiryOpen] = useState(false);
+  const [selectedMembership, setSelectedMembership] = useState<Membership | null>(null);
 
   // Queries
   const { data: profile, isLoading: isLoadingProfile, refetch: refetchProfile } = useMemberProfile(id);
@@ -96,23 +98,30 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
     refetchBookings();
   };
 
-  const handleExtendExpiry = () => {
+  const handleExtendExpiry = (membership: Membership) => {
+    setSelectedMembership(membership);
     setIsExtendExpiryOpen(true);
   };
 
   const handleExtendExpirySuccess = () => {
     toast.success('Expiry extended successfully');
     refetchMemberships();
+    setSelectedMembership(null);
   };
 
-  const handleAddClass = () => {
+  const handleAddClass = (membership: Membership) => {
+    setSelectedMembership(membership);
     setIsAdjustBalanceOpen(true);
   };
 
   const handleAdjustBalanceSuccess = () => {
     toast.success('Balance adjusted successfully');
     refetchMemberships();
+    setSelectedMembership(null);
   };
+
+  const currentMemberships = membershipsData?.current ?? [];
+  const hasActiveMembership = currentMemberships.length > 0;
 
   return (
     <DashboardLayout>
@@ -128,10 +137,10 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
         <main className="flex-1 px-2 py-2 md:px-6 md:py-4 space-y-4 md:space-y-4">
           {/* Membership Status Card */}
           <MembershipStatusCard
-            current={membershipsData?.current ?? null}
+            current={currentMemberships}
             onAddMembership={() => setIsAddMembershipOpen(true)}
-            onExtendExpiry={membershipsData?.current ? handleExtendExpiry : undefined}
-            onAddClass={membershipsData?.current ? handleAddClass : undefined}
+            onExtendExpiry={hasActiveMembership ? handleExtendExpiry : undefined}
+            onAddClass={hasActiveMembership ? handleAddClass : undefined}
           />
 
           {/* Upcoming Classes */}
@@ -148,11 +157,11 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
             />
           </div>
 
-          {/* Transactions */}
+          {/* Memberships (formerly Transactions) */}
           <div className="border rounded-lg p-3 md:p-4">
-            <h3 className="text-sm font-semibold mb-3">Transactions</h3>
+            <h3 className="text-sm font-semibold mb-3">Memberships</h3>
             <TransactionsHistory
-              current={membershipsData?.current ?? null}
+              current={currentMemberships}
               past={membershipsData?.past ?? []}
             />
           </div>
@@ -185,23 +194,29 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
       />
 
       {/* Adjust Balance Dialog */}
-      {membershipsData?.current && (
+      {selectedMembership && (
         <AdjustBalanceDialog
-          membershipId={membershipsData.current.id}
-          currentBalance={membershipsData.current.remaining_classes}
+          membershipId={selectedMembership.id}
+          currentBalance={selectedMembership.remaining_classes}
           open={isAdjustBalanceOpen}
-          onOpenChange={setIsAdjustBalanceOpen}
+          onOpenChange={(open) => {
+            setIsAdjustBalanceOpen(open);
+            if (!open) setSelectedMembership(null);
+          }}
           onSuccess={handleAdjustBalanceSuccess}
         />
       )}
 
       {/* Extend Expiry Dialog */}
-      {membershipsData?.current && (
+      {selectedMembership && (
         <ExtendExpiryDialog
-          membershipId={membershipsData.current.id}
-          currentExpiryDate={membershipsData.current.expiry_date}
+          membershipId={selectedMembership.id}
+          currentExpiryDate={selectedMembership.expiry_date}
           open={isExtendExpiryOpen}
-          onOpenChange={setIsExtendExpiryOpen}
+          onOpenChange={(open) => {
+            setIsExtendExpiryOpen(open);
+            if (!open) setSelectedMembership(null);
+          }}
           onSuccess={handleExtendExpirySuccess}
         />
       )}

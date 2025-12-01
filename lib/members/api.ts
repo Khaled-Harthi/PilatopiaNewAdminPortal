@@ -107,7 +107,7 @@ export async function fetchMemberMemberships(memberId: string): Promise<Membersh
   if (transactions.length === 0) {
     return {
       success: true,
-      current: null,
+      current: [],
       upcoming: [],
       past: [],
       total_spent: 0,
@@ -148,16 +148,14 @@ export async function fetchMemberMemberships(memberId: string): Promise<Membersh
     new Date(b.purchase_date).getTime() - new Date(a.purchase_date).getTime()
   );
 
-  // Find current (active or expiring) membership
-  const current = memberships.find((m) => m.state === 'active' || m.state === 'expiring') || null;
+  // Find all current (active or expiring) memberships
+  const current = memberships.filter((m) => m.state === 'active' || m.state === 'expiring');
 
   // Upcoming memberships
   const upcoming = memberships.filter((m) => m.state === 'upcoming');
 
-  // Past memberships (expired or not current)
-  const past = memberships.filter((m) =>
-    m.state === 'expired' || (m !== current && m.state !== 'upcoming')
-  );
+  // Past memberships (expired only)
+  const past = memberships.filter((m) => m.state === 'expired');
 
   // Calculate totals
   const total_spent = memberships.reduce((sum, m) => sum + m.price_paid, 0);

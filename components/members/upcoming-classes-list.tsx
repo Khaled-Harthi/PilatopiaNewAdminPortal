@@ -23,10 +23,10 @@ function formatBookingDate(dateStr: string): string {
 }
 
 export function UpcomingClassesList({ bookings, onCancel }: UpcomingClassesListProps) {
-  // Filter to only upcoming bookings
-  const upcomingBookings = bookings.filter(
-    (b) => b.attendance_status === 'upcoming'
-  );
+  // Filter to only upcoming bookings and sort by date ASC (earliest first)
+  const upcomingBookings = bookings
+    .filter((b) => b.attendance_status === 'upcoming')
+    .sort((a, b) => new Date(a.schedule_time).getTime() - new Date(b.schedule_time).getTime());
 
   if (upcomingBookings.length === 0) {
     return (

@@ -82,7 +82,7 @@ export interface Membership {
 
 export interface MembershipsResponse {
   success: boolean;
-  current: Membership | null;
+  current: Membership[];
   upcoming: Membership[];
   past: Membership[];
   total_spent: number;

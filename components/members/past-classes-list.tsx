@@ -13,12 +13,12 @@ function formatShortDate(dateStr: string): string {
   const date = parseISO(dateStr);
 
   if (isToday(date)) {
-    return 'Today';
+    return `Today, ${format(date, 'h:mm a')}`;
   }
   if (isYesterday(date)) {
-    return 'Yesterday';
+    return `Yesterday, ${format(date, 'h:mm a')}`;
   }
-  return format(date, 'MMM d');
+  return format(date, 'MMM d, h:mm a');
 }
 
 export function PastClassesList({ visits, totalVisits }: PastClassesListProps) {
@@ -37,7 +37,7 @@ export function PastClassesList({ visits, totalVisits }: PastClassesListProps) {
         {displayVisits.map((visit) => (
           <div key={visit.id} className="text-sm md:flex md:items-center md:justify-between md:py-2">
             {/* Date - separate line on mobile, inline on desktop */}
-            <p className="text-xs text-muted-foreground mb-0.5 md:mb-0 md:w-16 md:shrink-0">
+            <p className="text-xs text-muted-foreground mb-0.5 md:mb-0 md:w-32 md:shrink-0">
               {formatShortDate(visit.schedule_time)}
             </p>
             {/* Class info + status */}
