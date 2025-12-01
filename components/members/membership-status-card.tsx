@@ -151,10 +151,10 @@ export function MembershipStatusCard({
           onAddClass={onAddClass}
         />
       ))}
-      {/* Add another membership button */}
+      {/* Add membership button - always visible */}
       <Button variant="outline" onClick={onAddMembership} className="gap-2 w-full sm:w-auto">
         <Plus className="h-4 w-4" />
-        Add Another Membership
+        Add Membership
       </Button>
     </div>
   );

@@ -23,7 +23,7 @@ import { MembershipStatusCard } from '@/components/members/membership-status-car
 import { BookClassDialog } from '@/components/members/book-class-dialog';
 import { AdjustBalanceDialog } from '@/components/members/adjust-balance-dialog';
 import { ExtendExpiryDialog } from '@/components/members/extend-expiry-dialog';
-import { AddMembershipWizard } from '@/components/member/AddMembershipWizard';
+import { AddMembershipSheet } from '@/components/member/AddMembershipSheet';
 import type { Membership } from '@/lib/members/types';
 
 export default function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -177,8 +177,8 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
         </main>
       </div>
 
-      {/* Add Membership Wizard */}
-      <AddMembershipWizard
+      {/* Add Membership Sheet */}
+      <AddMembershipSheet
         open={isAddMembershipOpen}
         onOpenChange={setIsAddMembershipOpen}
         memberId={id}

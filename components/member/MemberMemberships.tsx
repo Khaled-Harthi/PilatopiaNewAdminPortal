@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { AddMembershipWizard } from './AddMembershipWizard';
+import { AddMembershipSheet } from './AddMembershipSheet';
 import apiClient from '@/lib/axios';
 
 interface Transaction {
@@ -202,8 +202,8 @@ export function MemberMemberships({ memberId, onUpdate }: { memberId: string; on
         </Card>
       )}
 
-      {/* Add Membership Wizard */}
-      <AddMembershipWizard
+      {/* Add Membership Sheet */}
+      <AddMembershipSheet
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         memberId={memberId}

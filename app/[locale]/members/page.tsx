@@ -14,7 +14,7 @@ import {
   AddMemberWizard,
 } from '@/components/members';
 import { useMembers } from '@/lib/members/hooks';
-import { AddMembershipWizard } from '@/components/member/AddMembershipWizard';
+import { AddMembershipSheet } from '@/components/member/AddMembershipSheet';
 
 export default function MembersPage() {
   const router = useRouter();
@@ -180,9 +180,9 @@ export default function MembersPage() {
         locale={locale}
       />
 
-      {/* Add Membership Wizard */}
+      {/* Add Membership Sheet */}
       {selectedMemberId && (
-        <AddMembershipWizard
+        <AddMembershipSheet
           open={isAddMembershipOpen}
           onOpenChange={setIsAddMembershipOpen}
           memberId={selectedMemberId}
