@@ -23,6 +23,8 @@ export function AppSidebar({ side = 'left' }: { side?: 'left' | 'right' }) {
   const { admin, logout } = useAuth()
   const pathname = usePathname()
 
+  const isSuperAdmin = admin?.role === 'super_admin'
+
   const menuItems = [
     {
       title: t('home'),
@@ -36,10 +38,11 @@ export function AppSidebar({ side = 'left' }: { side?: 'left' | 'right' }) {
       title: t('schedule'),
       url: '/schedule',
     },
-    {
+    // Settings only visible to super_admin
+    ...(isSuperAdmin ? [{
       title: t('settings'),
       url: '/settings',
-    },
+    }] : []),
   ]
 
   // Check if path is active (handle locale prefix)

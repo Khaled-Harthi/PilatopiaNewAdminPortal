@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, Upload } from 'lucide-react';
 import apiClient from '@/lib/axios';
 import { toast } from 'sonner';
 
@@ -16,6 +16,34 @@ export default function NotificationsPage() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        // Append to existing tokens (with newline separator if needed)
+        const newTokens = tokens.trim()
+          ? `${tokens.trim()}\n${content.trim()}`
+          : content.trim();
+        setTokens(newTokens);
+        toast.success(`Loaded ${content.trim().split('\n').filter(t => t.trim()).length} tokens from file`);
+      }
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read file');
+    };
+    reader.readAsText(file);
+
+    // Reset file input so same file can be uploaded again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSend = async () => {
     const tokenList = tokens
@@ -54,9 +82,6 @@ export default function NotificationsPage() {
       } else {
         toast.success(`Notification sent to ${sent} device(s)`);
       }
-      setTokens('');
-      setTitle('');
-      setBody('');
     } catch (error) {
       console.error('Failed to send notification:', error);
       toast.error('Failed to send notification');
@@ -79,7 +104,28 @@ export default function NotificationsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="tokens">FCM Tokens (one per line)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="tokens">FCM Tokens (one per line)</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".txt"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="token-file"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-1" />
+                    Upload .txt
+                  </Button>
+                </div>
+              </div>
               <Textarea
                 id="tokens"
                 placeholder="Paste FCM tokens here, one per line..."

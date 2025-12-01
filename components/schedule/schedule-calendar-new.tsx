@@ -68,9 +68,17 @@ export function ScheduleCalendar({
     weekEnd.setDate(weekStart.getDate() + 6);
     weekEnd.setHours(23, 59, 59, 999);
 
+    // Format dates in local timezone to avoid UTC offset issues
+    const formatLocalDate = (d: Date) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     return {
-      startDate: weekStart.toISOString().split('T')[0],
-      endDate: weekEnd.toISOString().split('T')[0],
+      startDate: formatLocalDate(weekStart),
+      endDate: formatLocalDate(weekEnd),
     };
   }, [date]);
 
