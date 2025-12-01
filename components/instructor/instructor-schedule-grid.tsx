@@ -238,7 +238,10 @@ export function InstructorScheduleGrid({
                               locale={locale}
                             >
                               <button
-                                className="w-full text-left rounded-md px-2 py-1.5 transition-colors hover:opacity-80"
+                                className={cn(
+                                  'w-full text-left rounded-md px-2 py-1.5 transition-colors hover:opacity-80',
+                                  cls.booked_count === 0 && 'opacity-40'
+                                )}
                                 style={{ backgroundColor: `${color}20` }}
                               >
                                 <div className="text-xs font-medium truncate" style={{ color }}>

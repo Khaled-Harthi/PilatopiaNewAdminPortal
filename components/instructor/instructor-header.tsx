@@ -9,11 +9,8 @@ interface InstructorHeaderProps {
 }
 
 export function InstructorHeader({ locale }: InstructorHeaderProps) {
-  const { admin, logout } = useAuth();
+  const { logout } = useAuth();
   const isRTL = locale === 'ar';
-
-  // Get first name only for mobile
-  const firstName = admin?.name?.split(' ')[0] || '';
 
   return (
     <header className="border-b bg-background">
@@ -23,17 +20,8 @@ export function InstructorHeader({ locale }: InstructorHeaderProps) {
           <span className="text-lg sm:text-xl font-semibold">Pilatopia</span>
         </div>
 
-        {/* User info + Logout */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Full name on desktop, first name on mobile */}
-          <span className="text-sm text-muted-foreground hidden sm:inline">
-            {admin?.name}
-          </span>
-          <span className="text-sm text-muted-foreground sm:hidden">
-            {firstName}
-          </span>
-
-          {/* Icon-only button on mobile, with text on desktop */}
+        {/* Logout */}
+        <div className="flex items-center">
           <Button
             variant="ghost"
             size="sm"

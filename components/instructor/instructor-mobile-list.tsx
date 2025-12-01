@@ -120,7 +120,10 @@ export function InstructorMobileList({
                   return (
                     <div
                       key={cls.id}
-                      className="rounded-lg border bg-card overflow-hidden"
+                      className={cn(
+                        'rounded-lg border bg-card overflow-hidden',
+                        cls.booked_count === 0 && 'opacity-40'
+                      )}
                     >
                       {/* Class Header - Clickable */}
                       <button

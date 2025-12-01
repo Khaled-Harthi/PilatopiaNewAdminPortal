@@ -6,6 +6,7 @@ import { parseISO, startOfWeek, addDays } from 'date-fns';
 
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { InstructorHeader } from '@/components/instructor/instructor-header';
+import { useAuth } from '@/hooks/useAuth';
 import { InstructorWeekNav } from '@/components/instructor/instructor-week-nav';
 import { InstructorStats } from '@/components/instructor/instructor-stats';
 import { InstructorScheduleGrid } from '@/components/instructor/instructor-schedule-grid';
@@ -15,6 +16,7 @@ import { useInstructorSchedule, calculateWeekSummary } from '@/lib/instructor/ho
 export default function InstructorSchedulePage() {
   const locale = useLocale();
   const isRTL = locale === 'ar';
+  const { admin } = useAuth();
 
   // Fetch schedule data
   const { data, isLoading, error } = useInstructorSchedule();
@@ -81,7 +83,7 @@ export default function InstructorSchedulePage() {
         <main className="flex-1 container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col gap-4 sm:gap-6">
           {/* Title */}
           <h1 className="text-xl sm:text-2xl font-semibold">
-            {isRTL ? 'جدولي' : 'My Schedule'}
+            {isRTL ? `جدول ${admin?.name || ''}` : `${admin?.name || ''}'s Schedule`}
           </h1>
 
           {/* Week Period */}
