@@ -1,60 +1,98 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { DashboardLayout } from '@/components/DashboardLayout';
-import { ScheduleCalendar } from '@/components/schedule/schedule-calendar-new';
-import { RegistrationModal } from '@/components/schedule/registration-modal';
-import { CreateClassSheet } from '@/components/schedule/create-class-sheet';
-import { EditClassSheet } from '@/components/schedule/edit-class-sheet';
+import { startOfWeek, addDays, previousSunday, format } from 'date-fns';
+
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ScheduleHeader } from '@/components/schedule/schedule-header';
+import { ScheduleToolbar, type HourRangeMode } from '@/components/schedule/schedule-toolbar';
+import { ScheduleGrid } from '@/components/schedule/schedule-grid';
+import { ScheduleMobileList } from '@/components/schedule/schedule-mobile-list';
 import { DeleteClassDialog } from '@/components/schedule/delete-class-dialog';
+import { useClasses } from '@/lib/schedule/hooks';
 import type { PilatesClass } from '@/lib/schedule/types';
 
 export default function SchedulePage() {
   const router = useRouter();
   const locale = useLocale();
-  const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
+  const sidebarSide = locale === 'ar' ? 'right' : 'left';
+
+  // Initialize to current week (starting from last/previous Sunday)
+  const getInitialWeek = () => {
+    const today = new Date();
+    if (today.getDay() === 0) return today; // If today is Sunday
+    return previousSunday(today);
+  };
+
+  // State
+  const [currentWeek, setCurrentWeek] = useState<Date>(getInitialWeek());
+  const [hourRangeMode, setHourRangeMode] = useState<HourRangeMode>('auto');
+
+  // Filters
+  const [selectedInstructors, setSelectedInstructors] = useState<string[]>([]);
+  const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>([]);
+
+  // Dialogs
   const [selectedClassData, setSelectedClassData] = useState<PilatesClass | null>(null);
-  const [registrationModalOpen, setRegistrationModalOpen] = useState(false);
-  const [createClassSheetOpen, setCreateClassSheetOpen] = useState(false);
-  const [editClassSheetOpen, setEditClassSheetOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const [selectedTime, setSelectedTime] = useState<string | undefined>();
 
-  const handleClassClick = (classData: PilatesClass) => {
-    setSelectedClassId(classData.id);
-    setSelectedClassData(classData);
-    setRegistrationModalOpen(true);
-  };
+  // Calculate date range for API
+  // Use format() instead of toISOString() to preserve local timezone
+  const { startDate, endDate } = useMemo(() => {
+    const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
+    const weekEnd = addDays(weekStart, 6);
+    return {
+      startDate: format(weekStart, 'yyyy-MM-dd'),
+      endDate: format(weekEnd, 'yyyy-MM-dd'),
+    };
+  }, [currentWeek]);
 
-  const handleRegistrationModalChange = (open: boolean) => {
-    setRegistrationModalOpen(open);
-    if (!open) {
-      // Clear selection when modal closes to prevent reopening
-      setSelectedClassId(null);
-      setSelectedClassData(null);
+  // Fetch classes
+  const { data: classesData, isLoading } = useClasses(startDate, endDate);
+
+  // Load hour range preference from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('schedule-hour-range');
+    if (saved && ['auto', 'peak', 'all'].includes(saved)) {
+      setHourRangeMode(saved as HourRangeMode);
     }
-  };
+  }, []);
 
-  const handleQuickAdd = (date: Date) => {
-    setSelectedDate(date);
-    // Extract time from date (in HH:mm format)
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    setSelectedTime(`${hours}:${minutes}`);
-    setCreateClassSheetOpen(true);
-  };
+  // Save hour range preference
+  useEffect(() => {
+    localStorage.setItem('schedule-hour-range', hourRangeMode);
+  }, [hourRangeMode]);
 
-  const handleAddSchedule = () => {
-    // Navigate to bulk create page
+  // Extract filter options from classes
+  const filterOptions = useMemo(() => {
+    const classes = classesData?.classes || [];
+    const instructors = [...new Set(classes.map((c) => c.instructor).filter((x): x is string => Boolean(x)))].sort();
+    const classTypes = [...new Set(classes.map((c) => c.name || c.class_type).filter((x): x is string => Boolean(x)))].sort();
+    return { instructors, classTypes };
+  }, [classesData?.classes]);
+
+  // Apply filters to classes
+  const filteredClasses = useMemo(() => {
+    const classes = classesData?.classes || [];
+    return classes.filter((cls) => {
+      if (selectedInstructors.length > 0 && !selectedInstructors.includes(cls.instructor)) {
+        return false;
+      }
+      const classType = cls.name || cls.class_type || '';
+      if (selectedClassTypes.length > 0 && !selectedClassTypes.includes(classType)) {
+        return false;
+      }
+      return true;
+    });
+  }, [classesData?.classes, selectedInstructors, selectedClassTypes]);
+
+  // Handlers
+  const handleAddClick = () => {
     router.push(`/${locale}/schedule/bulk-create`);
-  };
-
-  const handleEditClass = (classData: PilatesClass) => {
-    setSelectedClassData(classData);
-    setEditClassSheetOpen(true);
   };
 
   const handleDeleteClass = (classData: PilatesClass) => {
@@ -62,42 +100,85 @@ export default function SchedulePage() {
     setDeleteDialogOpen(true);
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <ProtectedRoute>
+        <SidebarProvider>
+          <AppSidebar side={sidebarSide} />
+          <SidebarInset>
+            <div className="min-h-screen bg-background flex flex-col">
+              <ScheduleHeader locale={locale} />
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-muted-foreground">
+                  {locale === 'ar' ? 'جاري التحميل...' : 'Loading schedule...'}
+                </p>
+              </div>
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+      </ProtectedRoute>
+    );
+  }
+
   return (
-    <DashboardLayout>
-      <div className="flex flex-col gap-4">
-        <ScheduleCalendar
-          onClassClick={handleClassClick}
-          onQuickAdd={handleQuickAdd}
-          onAddSchedule={handleAddSchedule}
-          onEditClass={handleEditClass}
-          onDeleteClass={handleDeleteClass}
-        />
+    <ProtectedRoute>
+      <SidebarProvider>
+        <AppSidebar side={sidebarSide} />
+        <SidebarInset>
+          <div className="min-h-screen bg-background flex flex-col">
+            {/* Header */}
+            <ScheduleHeader locale={locale} />
 
-        <RegistrationModal
-          classId={selectedClassId}
-          open={registrationModalOpen}
-          onOpenChange={handleRegistrationModalChange}
-        />
+            {/* Toolbar */}
+            <ScheduleToolbar
+              currentWeek={currentWeek}
+              onWeekChange={setCurrentWeek}
+              instructorOptions={filterOptions.instructors}
+              classTypeOptions={filterOptions.classTypes}
+              selectedInstructors={selectedInstructors}
+              selectedClassTypes={selectedClassTypes}
+              onInstructorsChange={setSelectedInstructors}
+              onClassTypesChange={setSelectedClassTypes}
+              hourRangeMode={hourRangeMode}
+              onHourRangeModeChange={setHourRangeMode}
+              onAddClick={handleAddClick}
+              locale={locale}
+            />
 
-        <CreateClassSheet
-          open={createClassSheetOpen}
-          onOpenChange={setCreateClassSheetOpen}
-          defaultDate={selectedDate}
-          defaultTime={selectedTime}
-        />
+            {/* Desktop: Main Grid */}
+            <main className="hidden md:flex flex-1 container mx-auto px-6 py-4 flex-col">
+              <ScheduleGrid
+                classes={filteredClasses}
+                currentWeek={currentWeek}
+                hourRangeMode={hourRangeMode}
+                onClassClick={() => {}} // No longer used, popover handles this
+                onDeleteClass={handleDeleteClass}
+                onBulkCreate={handleAddClick}
+                locale={locale}
+              />
+            </main>
 
-        <EditClassSheet
-          open={editClassSheetOpen}
-          onOpenChange={setEditClassSheetOpen}
-          classData={selectedClassData}
-        />
+            {/* Mobile: List View */}
+            <main className="md:hidden flex-1 container mx-auto px-4 py-4 overflow-auto">
+              <ScheduleMobileList
+                classes={filteredClasses}
+                weekStart={startOfWeek(currentWeek, { weekStartsOn: 0 })}
+                onDeleteClass={handleDeleteClass}
+                onAddClick={handleAddClick}
+                locale={locale}
+              />
+            </main>
 
-        <DeleteClassDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          classData={selectedClassData}
-        />
-      </div>
-    </DashboardLayout>
+            {/* Delete Class Dialog */}
+            <DeleteClassDialog
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+              classData={selectedClassData}
+            />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </ProtectedRoute>
   );
 }

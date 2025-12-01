@@ -35,6 +35,88 @@
     "done": "تم",
     "close": "إغلاق"
   },
+  "MembersList": {
+    "title": "الأعضاء",
+    "subtitle": "إدارة أعضاء الاستوديو",
+    "addMember": "إضافة عضو",
+    "search": {
+      "placeholder": "البحث بالاسم أو رقم الجوال...",
+      "button": "بحث",
+      "clear": "مسح"
+    },
+    "stats": {
+      "total": "الإجمالي",
+      "members": "الأعضاء",
+      "active": "نشط",
+      "memberships": "عضويات",
+      "expiring": "قريب الانتهاء",
+      "withinDays": "خلال 7 أيام",
+      "needAttention": "يحتاج متابعة",
+      "inactiveDays": "غير نشط 14+ يوم",
+      "new": "جدد",
+      "thisMonth": "هذا الشهر"
+    },
+    "segments": {
+      "all": "الكل",
+      "expiring": "قريب الانتهاء",
+      "inactive": "يحتاج متابعة",
+      "new": "جدد",
+      "noMembership": "بدون عضوية"
+    },
+    "memberCard": {
+      "noActiveMembership": "لا توجد عضوية نشطة",
+      "lastVisit": "آخر زيارة:",
+      "noVisits": "لم تسجل زيارة",
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "expires": "تنتهي",
+      "expiresIn": "تنتهي خلال {days} أيام",
+      "expiresToday": "تنتهي اليوم",
+      "expired": "منتهية الصلاحية",
+      "book": "حجز",
+      "renew": "تجديد",
+      "viewProfile": "عرض الملف",
+      "badges": {
+        "expiring": "قريب الانتهاء",
+        "inactive": "غير نشط",
+        "new": "جديد"
+      }
+    },
+    "noMembers": "لا يوجد أعضاء",
+    "clearSearch": "مسح البحث",
+    "pagination": {
+      "page": "الصفحة {current} من {total} ({items} عضو)",
+      "previous": "السابق",
+      "next": "التالي"
+    }
+  },
+  "AddMember": {
+    "title": "إضافة عضو جديد",
+    "step": "الخطوة {current} من {total}: {stepName}",
+    "steps": {
+      "basicInfo": "المعلومات الأساسية",
+      "success": "تم الإنشاء بنجاح"
+    },
+    "fields": {
+      "name": "الاسم",
+      "namePlaceholder": "أدخل اسم العضو",
+      "phone": "رقم الجوال",
+      "phonePlaceholder": "مثال: 0501234567",
+      "birthDate": "تاريخ الميلاد",
+      "optional": "اختياري"
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "create": "إنشاء العضو",
+      "creating": "جاري الإنشاء...",
+      "done": "تم",
+      "addMembership": "إضافة عضوية"
+    },
+    "success": {
+      "title": "تم إنشاء العضو بنجاح",
+      "message": "يمكنك الآن إضافة عضوية أو حجز حصة للعضو"
+    }
+  },
   "MemberProfile": {
     "title": "الملف الشخصي للعضو",
     "loading": "جاري التحميل...",
@@ -47,6 +129,7 @@
     "joinedDaysAgo": "انضم منذ {days} أيام",
     "joinedMonthsAgo": "انضم منذ {months} أشهر",
     "joinedYearsAgo": "انضم منذ {years} سنوات",
+    "joinedUnknown": "تاريخ الانضمام غير معروف",
     "points": "{points} نقطة",
     "Bookings": {
       "title": "الحجوزات",

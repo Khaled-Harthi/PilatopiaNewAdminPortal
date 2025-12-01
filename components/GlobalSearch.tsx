@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search } from 'lucide-react';
 import { useRouter } from '@/i18n/routing';
 import {
   Command,
@@ -76,19 +75,7 @@ export function GlobalSearch() {
   };
 
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-      >
-        <Search className="h-4 w-4" />
-        <span>Search members...</span>
-        <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-          <span className="text-xs">⌘</span>K
-        </kbd>
-      </button>
-
-      <CommandDialog open={open} onOpenChange={setOpen}>
+    <CommandDialog open={open} onOpenChange={setOpen}>
         <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search members by name or phone..."
@@ -119,7 +106,6 @@ export function GlobalSearch() {
           )}
         </CommandList>
         </Command>
-      </CommandDialog>
-    </>
+    </CommandDialog>
   );
 }

@@ -85,13 +85,12 @@ export interface CreateClassPayload {
 }
 
 export interface UpdateClassPayload {
-  time?: string; // HH:mm format (UTC)
-  date?: string; // YYYY-MM-DD format
-  class_type_id?: number;
-  instructor_id?: number;
-  duration?: number;
-  capacity?: number;
-  class_room_id?: number;
+  classTypeId: number;
+  instructorId: number;
+  scheduleTime: string; // ISO 8601 format (e.g., "2025-01-15T10:00:00")
+  capacity: number;
+  durationMinutes: number;
+  classRoomId?: number;
 }
 
 // For react-big-calendar
@@ -128,4 +127,71 @@ export interface BulkClassConfig {
   durationMinutes: number;
   timeSlots: TimeSlot[];
   repeatPattern: RepeatPattern;
+}
+
+// ============================================
+// Daily Dashboard Types
+// ============================================
+
+export interface DailySummary {
+  total_classes: number;
+  total_capacity: number;
+  total_booked: number;
+  total_checked_in: number;
+  total_waitlisted: number;
+}
+
+export interface DailyClassStats {
+  total_booked: number;
+  checked_in: number;
+  pending: number;
+  waitlisted: number;
+}
+
+export interface DailyClassInfo {
+  id: number;
+  name: string;
+  schedule_time: string;
+  duration_minutes: number;
+  instructor: string;
+  instructor_id: number;
+  capacity: number;
+  class_room_name: string;
+}
+
+export interface DailyBooking {
+  booking_id: number;
+  user_id: number;
+  user_name: string;
+  phone_number: string;
+  attendance_id: number | null;
+  check_in_time: string | null;
+}
+
+export interface DailyWaitlistMember {
+  member_id: number;
+  member_name: string;
+  phone_number: string;
+  joined_at: string;
+  position: number;
+}
+
+export interface DailyClassDetail {
+  class: DailyClassInfo;
+  stats: DailyClassStats;
+  bookings: DailyBooking[];
+  waitlist: DailyWaitlistMember[];
+}
+
+export interface DailyDetailedResponse {
+  success: boolean;
+  date: string;
+  summary: DailySummary;
+  classes: DailyClassDetail[];
+}
+
+export interface PromoteFromWaitlistResponse {
+  success: boolean;
+  booking_id?: number;
+  message: string;
 }

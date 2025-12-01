@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { Admin, getStoredAdmin, getStoredToken, setAuthData, clearAuthData } from '@/lib/auth';
 import apiClient from '@/lib/axios';
 
@@ -18,6 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const locale = useLocale();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -46,7 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthData(token, adminData);
       setAdmin(adminData);
 
-      router.push('/');
+      // Role-based redirect
+      if (adminData.role === 'instructor') {
+        router.push(`/${locale}/instructor/schedule`);
+      } else {
+        router.push(`/${locale}`);
+      }
     } catch (error) {
       throw error;
     }

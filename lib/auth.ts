@@ -1,8 +1,10 @@
+export type AdminRole = 'super_admin' | 'staff' | 'instructor';
+
 export interface Admin {
   id: number;
   name: string;
   email: string;
-  role: 'super_admin' | 'staff';
+  role: AdminRole;
 }
 
 export interface LoginResponse {
@@ -46,11 +48,20 @@ export function isAuthenticated(): boolean {
   return !!getStoredToken();
 }
 
-export function hasRole(role: 'super_admin' | 'staff'): boolean {
+export function hasRole(role: AdminRole): boolean {
   const admin = getStoredAdmin();
   return admin?.role === role;
 }
 
 export function isSuperAdmin(): boolean {
   return hasRole('super_admin');
+}
+
+export function isInstructor(): boolean {
+  return hasRole('instructor');
+}
+
+export function isAdminUser(): boolean {
+  const admin = getStoredAdmin();
+  return admin?.role === 'super_admin' || admin?.role === 'staff';
 }

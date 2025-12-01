@@ -126,6 +126,69 @@ These components SHOULD have borders and shadows:
 - **Cards**: `border shadow-sm` (elevated content blocks)
 - **Tooltips**: `border shadow-sm` (contextual overlays)
 
+#### Responsive Dialog Pattern (Mobile Bottom Sheet)
+
+**Rule:** All modal dialogs should display as bottom sheets on mobile devices for better UX.
+
+**Use the `ResponsiveDialog` component** from `@/components/ui/responsive-dialog`:
+- On desktop: Renders as a centered `Dialog`
+- On mobile: Renders as a `Sheet` sliding from bottom
+
+**Usage:**
+```tsx
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from '@/components/ui/responsive-dialog';
+
+function MyDialog({ open, onOpenChange }: Props) {
+  return (
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent>
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Title</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
+            Description text here.
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
+
+        <div className="space-y-4 py-4">
+          {/* Dialog content */}
+        </div>
+
+        <ResponsiveDialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit}>
+            Submit
+          </Button>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
+  );
+}
+```
+
+**Key Points:**
+- Uses `useIsMobile()` hook from `@/hooks/use-mobile`
+- Mobile breakpoint: 768px
+- Bottom sheet styling: `max-h-[90vh] overflow-y-auto rounded-t-xl`
+- Same API as Dialog but automatically adapts to screen size
+
+**When to use:**
+- All action dialogs (confirm, create, edit, delete)
+- Form dialogs
+- Any modal that requires user interaction
+
+**When NOT to use:**
+- Full-page modals or overlays
+- Alerts that need to be dismissible with backdrop click only
+
 #### Visual Principles
 
 1. **Minimalism**: Content over decoration - no unnecessary visual elements

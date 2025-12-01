@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { AuthProvider } from '@/hooks/useAuth';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { Toaster } from '@/components/ui/sonner';
 import "../globals.css";
 
 export const metadata: Metadata = {
@@ -48,6 +49,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             </AuthProvider>
           </NextIntlClientProvider>
         </QueryProvider>
+        <Toaster richColors position="bottom-right" />
       </body>
     </html>
   );

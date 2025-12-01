@@ -35,6 +35,7 @@ interface PromoCodeValidation {
   valid: boolean;
   discountType?: string;
   discountValue?: number;
+  discountPercentage?: number;
   finalPrice?: number;
   message?: string;
   error?: string;
@@ -275,10 +276,10 @@ export function AddMembershipWizard({
                     <span className="font-medium">{t('step2.originalPrice')}</span> ${Number(selectedPlan.price).toFixed(2)}
                   </p>
                   <p className="text-sm text-green-900">
-                    <span className="font-medium">{t('step2.discount')}</span> {promoValidation.discountPercentage}%
+                    <span className="font-medium">{t('step2.discount')}</span> {promoValidation?.discountPercentage ?? 0}%
                   </p>
                   <p className="text-lg font-bold text-green-900">
-                    {t('step2.finalPrice')} ${(Number(selectedPlan.price) * (1 - Number(promoValidation.discountPercentage) / 100)).toFixed(2)}
+                    {t('step2.finalPrice')} ${(Number(selectedPlan.price) * (1 - Number(promoValidation?.discountPercentage ?? 0) / 100)).toFixed(2)}
                   </p>
                 </div>
               )}
@@ -386,10 +387,10 @@ export function AddMembershipWizard({
                 {promoValidation?.valid && (
                   <>
                     <p className="text-green-600">
-                      <span className="font-medium">{t('step4.discountApplied')}</span> {t('step4.percentOff', { percent: promoValidation.discountPercentage })}
+                      <span className="font-medium">{t('step4.discountApplied')}</span> {t('step4.percentOff', { percent: promoValidation.discountPercentage ?? 0 })}
                     </p>
                     <p className="text-lg font-bold">
-                      {t('step4.finalAmount')} ${(Number(selectedPlan.price) * (1 - Number(promoValidation.discountPercentage) / 100)).toFixed(2)}
+                      {t('step4.finalAmount')} ${(Number(selectedPlan.price) * (1 - Number(promoValidation.discountPercentage ?? 0) / 100)).toFixed(2)}
                     </p>
                   </>
                 )}

@@ -13,6 +13,9 @@ import {
   fetchInstructors,
   fetchClassTypes,
   fetchClassRooms,
+  fetchDailyDetailed,
+  checkInMember,
+  promoteFromWaitlist,
 } from './api';
 import type { CreateClassPayload, UpdateClassPayload } from './types';
 
@@ -130,5 +133,57 @@ export function useClassRooms() {
     queryKey: ['class-rooms'],
     queryFn: fetchClassRooms,
     staleTime: 1000 * 60 * 30, // 30 minutes
+  });
+}
+
+// ============================================
+// Daily Dashboard Hooks
+// ============================================
+
+/**
+ * Hook to fetch detailed daily data
+ */
+export function useDailyDetailed(date: string, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ['daily-detailed', date],
+    queryFn: () => fetchDailyDetailed(date),
+    staleTime: 0, // Always consider data stale - ensures fresh data on navigation
+    gcTime: 1000 * 60 * 5, // Keep in cache for 5 minutes for quick back navigation
+    enabled: enabled && !!date,
+    refetchOnMount: 'always', // Always refetch when component mounts (page navigation)
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchInterval: 1000 * 60, // Refetch every 60 seconds for real-time updates
+  });
+}
+
+/**
+ * Hook to check in a member
+ */
+export function useCheckInMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ classId, userId }: { classId: number; userId: number }) =>
+      checkInMember(classId, userId),
+    onSuccess: () => {
+      // Invalidate daily detailed query to refetch data
+      queryClient.invalidateQueries({ queryKey: ['daily-detailed'] });
+    },
+  });
+}
+
+/**
+ * Hook to promote a member from waitlist
+ */
+export function usePromoteFromWaitlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ classId, memberId }: { classId: number; memberId: number }) =>
+      promoteFromWaitlist(classId, memberId),
+    onSuccess: () => {
+      // Invalidate daily detailed query to refetch data
+      queryClient.invalidateQueries({ queryKey: ['daily-detailed'] });
+    },
   });
 }

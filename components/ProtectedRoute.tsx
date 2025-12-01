@@ -1,18 +1,58 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
+import type { AdminRole } from '@/lib/auth';
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRoles?: AdminRole[];
+}
+
+export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
   const { admin, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = useLocale();
 
   useEffect(() => {
-    if (!isLoading && !admin) {
+    if (isLoading) return;
+
+    // Not logged in - redirect to login
+    if (!admin) {
       router.push('/login');
+      return;
     }
-  }, [admin, isLoading, router]);
+
+    // Check role-based access
+    if (requiredRoles && !requiredRoles.includes(admin.role)) {
+      // Redirect to appropriate dashboard based on role
+      if (admin.role === 'instructor') {
+        router.push(`/${locale}/instructor/schedule`);
+      } else {
+        router.push(`/${locale}`);
+      }
+      return;
+    }
+
+    // Auto-redirect logic based on current path and role
+    const isInstructorPath = pathname.includes('/instructor/');
+    const isAdminPath = !isInstructorPath && pathname !== `/${locale}/login`;
+
+    // Instructor trying to access admin pages
+    if (admin.role === 'instructor' && isAdminPath && pathname !== `/${locale}/instructor/schedule`) {
+      router.push(`/${locale}/instructor/schedule`);
+      return;
+    }
+
+    // Admin/staff trying to access instructor pages
+    if ((admin.role === 'super_admin' || admin.role === 'staff') && isInstructorPath) {
+      router.push(`/${locale}`);
+      return;
+    }
+  }, [admin, isLoading, router, pathname, locale, requiredRoles]);
 
   if (isLoading) {
     return (
@@ -23,6 +63,11 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!admin) {
+    return null;
+  }
+
+  // Check if user has required role
+  if (requiredRoles && !requiredRoles.includes(admin.role)) {
     return null;
   }
 

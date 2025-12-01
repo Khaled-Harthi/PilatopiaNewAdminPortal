@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocale } from 'next-intl';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,9 +31,34 @@ export function DeleteClassDialog({ open, onOpenChange, classData }: DeleteClass
 
     try {
       await deleteClass.mutateAsync(classData.id);
+      toast.success(locale === 'ar' ? 'تم حذف الحصة بنجاح' : 'Class deleted successfully');
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to delete class:', error);
+
+      // Extract error message from API response
+      let errorMessage = locale === 'ar' ? 'فشل في حذف الحصة' : 'Failed to delete class';
+
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: { error?: string } } };
+        const apiError = axiosError.response?.data?.error;
+        if (apiError) {
+          // Map common API errors to user-friendly messages
+          if (apiError.includes('already started')) {
+            errorMessage = locale === 'ar'
+              ? 'لا يمكن حذف حصة بدأت بالفعل'
+              : 'Cannot delete a class that has already started';
+          } else if (apiError.includes('bookings')) {
+            errorMessage = locale === 'ar'
+              ? 'لا يمكن حذف حصة بها حجوزات'
+              : 'Cannot delete a class with existing bookings';
+          } else {
+            errorMessage = apiError;
+          }
+        }
+      }
+
+      toast.error(errorMessage);
     }
   };
 

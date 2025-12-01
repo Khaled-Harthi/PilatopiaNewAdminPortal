@@ -35,6 +35,88 @@
     "done": "Done",
     "close": "Close"
   },
+  "MembersList": {
+    "title": "Members",
+    "subtitle": "Manage studio members",
+    "addMember": "Add Member",
+    "search": {
+      "placeholder": "Search by name or phone...",
+      "button": "Search",
+      "clear": "Clear"
+    },
+    "stats": {
+      "total": "Total",
+      "members": "members",
+      "active": "Active",
+      "memberships": "memberships",
+      "expiring": "Expiring",
+      "withinDays": "within 7 days",
+      "needAttention": "Need Attention",
+      "inactiveDays": "inactive 14+ days",
+      "new": "New",
+      "thisMonth": "this month"
+    },
+    "segments": {
+      "all": "All",
+      "expiring": "Expiring Soon",
+      "inactive": "Need Attention",
+      "new": "New",
+      "noMembership": "No Membership"
+    },
+    "memberCard": {
+      "noActiveMembership": "No active membership",
+      "lastVisit": "Last visit:",
+      "noVisits": "No visits recorded",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "expires": "Expires",
+      "expiresIn": "Expires in {days} days",
+      "expiresToday": "Expires today",
+      "expired": "Expired",
+      "book": "Book",
+      "renew": "Renew",
+      "viewProfile": "View Profile",
+      "badges": {
+        "expiring": "Expiring",
+        "inactive": "Inactive",
+        "new": "New"
+      }
+    },
+    "noMembers": "No members found",
+    "clearSearch": "Clear search",
+    "pagination": {
+      "page": "Page {current} of {total} ({items} members)",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "AddMember": {
+    "title": "Add New Member",
+    "step": "Step {current} of {total}: {stepName}",
+    "steps": {
+      "basicInfo": "Basic Information",
+      "success": "Created Successfully"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Enter member name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "e.g., 0501234567",
+      "birthDate": "Birth Date",
+      "optional": "optional"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "create": "Create Member",
+      "creating": "Creating...",
+      "done": "Done",
+      "addMembership": "Add Membership"
+    },
+    "success": {
+      "title": "Member Created Successfully",
+      "message": "You can now add a membership or book a class for this member"
+    }
+  },
   "MemberProfile": {
     "title": "Member Profile",
     "loading": "Loading...",
@@ -47,6 +129,7 @@
     "joinedDaysAgo": "Joined {days} days ago",
     "joinedMonthsAgo": "Joined {months} months ago",
     "joinedYearsAgo": "Joined {years} years ago",
+    "joinedUnknown": "Join date unknown",
     "points": "{points} Points",
     "Bookings": {
       "title": "Bookings",

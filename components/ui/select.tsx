@@ -43,7 +43,7 @@ function SelectTrigger({
       {...props}
     >
       {children}
-      <span className="absolute top-0 bottom-0 right-9 w-px bg-border" />
+      <span className="absolute top-0 bottom-0 right-7 w-px bg-border" />
       <SelectPrimitive.Icon asChild>
         <ChevronDownIcon className="size-4" />
       </SelectPrimitive.Icon>

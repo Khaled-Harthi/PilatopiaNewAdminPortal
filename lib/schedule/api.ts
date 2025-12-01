@@ -11,6 +11,8 @@ import type {
   ClassRoom,
   CreateClassPayload,
   UpdateClassPayload,
+  DailyDetailedResponse,
+  PromoteFromWaitlistResponse,
 } from './types';
 
 /**
@@ -43,7 +45,7 @@ export async function updateClass(
   classId: number,
   payload: UpdateClassPayload
 ): Promise<{ success: boolean }> {
-  const response = await apiClient.post(`/admin/attendance/classes/${classId}`, payload);
+  const response = await apiClient.put(`/admin/schedules/classes/${classId}`, payload);
   return response.data;
 }
 
@@ -51,7 +53,7 @@ export async function updateClass(
  * Deletes/cancels a class
  */
 export async function deleteClass(classId: number): Promise<{ success: boolean }> {
-  const response = await apiClient.delete(`/admin/attendance/classes/${classId}`);
+  const response = await apiClient.delete(`/admin/schedules/classes/${classId}`);
   return response.data;
 }
 
@@ -100,4 +102,47 @@ export async function fetchClassTypes(): Promise<ClassType[]> {
 export async function fetchClassRooms(): Promise<ClassRoom[]> {
   const response = await apiClient.get<{ success: boolean; data: ClassRoom[] }>(`/admin/classes/rooms`);
   return response.data.data;
+}
+
+// ============================================
+// Daily Dashboard API Functions
+// ============================================
+
+/**
+ * Fetches detailed daily data including all classes, bookings, and waitlists
+ */
+export async function fetchDailyDetailed(date: string): Promise<DailyDetailedResponse> {
+  const response = await apiClient.get<DailyDetailedResponse>(
+    `/admin/attendance/daily/detailed`,
+    {
+      params: { date },
+    }
+  );
+  return response.data;
+}
+
+/**
+ * Records attendance (check-in) for a member
+ */
+export async function checkInMember(
+  classId: number,
+  userId: number
+): Promise<{ success: boolean; attendance_id: number }> {
+  const response = await apiClient.post(
+    `/admin/attendance/classes/${classId}/users/${userId}`
+  );
+  return response.data;
+}
+
+/**
+ * Promotes a member from waitlist to booking
+ */
+export async function promoteFromWaitlist(
+  classId: number,
+  memberId: number
+): Promise<PromoteFromWaitlistResponse> {
+  const response = await apiClient.post<PromoteFromWaitlistResponse>(
+    `/admin/classes/${classId}/waitlist/${memberId}/promote`
+  );
+  return response.data;
 }

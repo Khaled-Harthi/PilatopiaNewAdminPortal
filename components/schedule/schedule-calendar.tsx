@@ -121,20 +121,23 @@ export function ScheduleCalendar({ onClassClick, onQuickAdd, onAddSchedule, onEd
   }, [onClassClick, onEditClass, onDeleteClass, locale]);
 
   // Custom slot wrapper to add quick add buttons
-  const SlotWrapper = useCallback(({ children, value }: { children: React.ReactNode; value: Date }) => {
+  const SlotWrapper = useCallback((props: { children?: React.ReactNode; value?: Date }) => {
+    const { children, value } = props;
     return (
       <div className="rbc-day-slot group relative">
         {children}
-        <button
-          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs z-10"
-          onClick={(e) => {
-            e.stopPropagation();
-            onQuickAdd?.(value);
-          }}
-          title={locale === 'ar' ? 'إضافة حصة سريعة' : 'Quick add class'}
-        >
-          <Plus className="h-3 w-3" />
-        </button>
+        {value && (
+          <button
+            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs z-10"
+            onClick={(e) => {
+              e.stopPropagation();
+              onQuickAdd?.(value);
+            }}
+            title={locale === 'ar' ? 'إضافة حصة سريعة' : 'Quick add class'}
+          >
+            <Plus className="h-3 w-3" />
+          </button>
+        )}
       </div>
     );
   }, [onQuickAdd, locale]);
