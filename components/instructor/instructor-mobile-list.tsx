@@ -116,13 +116,15 @@ export function InstructorMobileList({
                   const scheduleTime = parseISO(cls.schedule_time);
                   const timeStr = format(scheduleTime, 'h:mm a', { locale: dateLocale });
                   const isExpanded = expandedId === cls.id;
+                  const isPast = scheduleTime < new Date();
 
                   return (
                     <div
                       key={cls.id}
                       className={cn(
-                        'rounded-lg border bg-card overflow-hidden',
-                        cls.booked_count === 0 && 'opacity-40'
+                        'rounded-lg border overflow-hidden',
+                        isPast ? 'bg-green-500/10 opacity-50' : 'bg-card',
+                        cls.booked_count === 0 && !isPast && 'opacity-40'
                       )}
                     >
                       {/* Class Header - Clickable */}

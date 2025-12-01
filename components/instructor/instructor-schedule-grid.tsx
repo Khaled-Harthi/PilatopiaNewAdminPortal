@@ -230,6 +230,8 @@ export function InstructorScheduleGrid({
                         {cellClasses.map((cls) => {
                           const color = getClassColor(cls.class_type);
                           const fillPercent = (cls.booked_count / cls.capacity) * 100;
+                          const classTime = parseISO(cls.schedule_time);
+                          const isPast = classTime < now;
 
                           return (
                             <InstructorClassPopover
@@ -240,9 +242,10 @@ export function InstructorScheduleGrid({
                               <button
                                 className={cn(
                                   'w-full text-left rounded-md px-2 py-1.5 transition-colors hover:opacity-80',
-                                  cls.booked_count === 0 && 'opacity-40'
+                                  cls.booked_count === 0 && !isPast && 'opacity-40',
+                                  isPast && 'opacity-50'
                                 )}
-                                style={{ backgroundColor: `${color}20` }}
+                                style={{ backgroundColor: isPast ? 'rgb(34 197 94 / 0.15)' : `${color}20` }}
                               >
                                 <div className="text-xs font-medium truncate" style={{ color }}>
                                   {cls.class_type}
