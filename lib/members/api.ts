@@ -115,7 +115,7 @@ export async function fetchMemberMemberships(memberId: string): Promise<Membersh
     };
   }
 
-  // Determine membership state based on dates
+  // Determine membership state based on dates and balance
   const getMembershipState = (tx: RawTransaction): 'active' | 'upcoming' | 'expiring' | 'expired' => {
     const now = new Date();
     const start = new Date(tx.startDate);
@@ -124,6 +124,7 @@ export async function fetchMemberMemberships(memberId: string): Promise<Membersh
 
     if (start > now) return 'upcoming';
     if (expiry < now) return 'expired';
+    if (tx.remainingBalance === 0) return 'expired'; // No classes left
     if (daysUntilExpiry <= 7) return 'expiring';
     return 'active';
   };
