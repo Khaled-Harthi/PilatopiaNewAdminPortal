@@ -160,6 +160,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
   };
 
   const currentMemberships = membershipsData?.current ?? [];
+  const upcomingMemberships = membershipsData?.upcoming ?? [];
   const hasActiveMembership = currentMemberships.length > 0;
 
   return (
@@ -177,6 +178,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
           {/* Membership Status Card */}
           <MembershipStatusCard
             current={currentMemberships}
+            upcoming={upcomingMemberships}
             onAddMembership={() => setIsAddMembershipOpen(true)}
             onExtendExpiry={hasActiveMembership ? handleExtendExpiry : undefined}
             onAddClass={hasActiveMembership ? handleAddClass : undefined}
