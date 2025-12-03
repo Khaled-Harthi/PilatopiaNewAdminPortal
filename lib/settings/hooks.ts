@@ -472,3 +472,89 @@ export function useDeleteLoyaltyRedemption() {
     },
   });
 }
+
+// ============================================
+// Banners Hooks
+// ============================================
+
+import {
+  fetchBanners,
+  fetchBanner,
+  fetchBannerCTAOptions,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+  reorderBanners,
+} from './api';
+import type { BannerCreate, BannerUpdate } from './types';
+
+export function useBanners() {
+  return useQuery({
+    queryKey: ['banners'],
+    queryFn: fetchBanners,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useBanner(id: number | null) {
+  return useQuery({
+    queryKey: ['banner', id],
+    queryFn: () => fetchBanner(id!),
+    enabled: id !== null,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useBannerCTAOptions() {
+  return useQuery({
+    queryKey: ['banner-cta-options'],
+    queryFn: fetchBannerCTAOptions,
+    staleTime: 1000 * 60 * 30, // 30 minutes - these rarely change
+  });
+}
+
+export function useCreateBanner() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: BannerCreate) => createBanner(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['banners'] });
+    },
+  });
+}
+
+export function useUpdateBanner() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: BannerUpdate }) =>
+      updateBanner(id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['banners'] });
+      queryClient.invalidateQueries({ queryKey: ['banner', variables.id] });
+    },
+  });
+}
+
+export function useDeleteBanner() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => deleteBanner(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['banners'] });
+    },
+  });
+}
+
+export function useReorderBanners() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (orderedIds: number[]) => reorderBanners(orderedIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['banners'] });
+    },
+  });
+}

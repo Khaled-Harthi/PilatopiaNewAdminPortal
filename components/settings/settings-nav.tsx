@@ -18,6 +18,7 @@ import {
   Shield,
   Menu,
   ChevronRight,
+  Image,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,6 +50,7 @@ const navGroups: NavGroup[] = [
       { title: 'Rooms', titleAr: 'الغرف', href: '/settings/content/rooms', icon: DoorOpen },
       { title: 'Tags', titleAr: 'الوسوم', href: '/settings/content/tags', icon: Tags },
       { title: 'Instructors', titleAr: 'المدربين', href: '/settings/content/instructors', icon: Users },
+      { title: 'Banners', titleAr: 'البانرات', href: '/settings/content/banners', icon: Image },
       { title: 'Notifications', titleAr: 'الإشعارات', href: '/settings/content/notifications', icon: Bell },
       { title: 'FAQ', titleAr: 'الأسئلة الشائعة', href: '/settings/content/faq', icon: HelpCircle },
     ],

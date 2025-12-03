@@ -418,3 +418,63 @@ export async function updateLoyaltyRedemption(
 export async function deleteLoyaltyRedemption(id: string): Promise<void> {
   await apiClient.delete(`/admin/loyalty/redemptions/${id}`);
 }
+
+// ============================================
+// Banners API
+// ============================================
+
+import type {
+  Banner,
+  BannerWithTranslations,
+  BannerCreate,
+  BannerUpdate,
+  CTAOption,
+} from './types';
+
+export async function fetchBanners(): Promise<Banner[]> {
+  const response = await apiClient.get<{ success: boolean; data: Banner[] }>(
+    '/admin/content/banners'
+  );
+  return response.data.data;
+}
+
+export async function fetchBannerCTAOptions(): Promise<CTAOption[]> {
+  const response = await apiClient.get<{ success: boolean; data: { options: CTAOption[] } }>(
+    '/admin/content/banners/cta-options'
+  );
+  return response.data.data.options;
+}
+
+export async function fetchBanner(id: number): Promise<BannerWithTranslations> {
+  const response = await apiClient.get<{ success: boolean; data: BannerWithTranslations }>(
+    `/admin/content/banners/${id}`,
+    {
+      params: { lang: 'all' },
+    }
+  );
+  return response.data.data;
+}
+
+export async function createBanner(payload: BannerCreate): Promise<Banner> {
+  const response = await apiClient.post<{ success: boolean; data: Banner; message: string }>(
+    '/admin/content/banners',
+    payload
+  );
+  return response.data.data;
+}
+
+export async function updateBanner(id: number, payload: BannerUpdate): Promise<Banner> {
+  const response = await apiClient.put<{ success: boolean; data: Banner; message: string }>(
+    `/admin/content/banners/${id}`,
+    payload
+  );
+  return response.data.data;
+}
+
+export async function deleteBanner(id: number): Promise<void> {
+  await apiClient.delete(`/admin/content/banners/${id}`);
+}
+
+export async function reorderBanners(orderedIds: number[]): Promise<void> {
+  await apiClient.put('/admin/content/banners/reorder', { orderedIds });
+}

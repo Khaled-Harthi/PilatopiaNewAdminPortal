@@ -327,3 +327,65 @@ export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
 }
+
+// ============================================
+// Banners Types
+// ============================================
+
+export type BannerDisplayType = 'modal' | 'screen';
+
+export type BannerStatus = 'active' | 'scheduled' | 'expired';
+
+export interface Banner {
+  id: number;
+  image_url: string;
+  title: string;
+  subtitle: string | null;
+  content_html: string;
+  cta_text: string | null;
+  display_type: BannerDisplayType;
+  cta_link: string | null;
+  sort_order: number;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface BannerWithTranslations extends Banner {
+  title_ar?: string;
+  subtitle_ar?: string | null;
+  content_html_ar?: string;
+  cta_text_ar?: string | null;
+}
+
+export interface BannerCreate {
+  image_url: string;
+  title: string;
+  title_ar?: string;
+  subtitle?: string | null;
+  subtitle_ar?: string | null;
+  content_html: string;
+  content_html_ar?: string;
+  cta_text?: string | null;
+  cta_text_ar?: string | null;
+  cta_link?: string | null;
+  display_type: BannerDisplayType;
+  start_date?: string | null;
+  end_date?: string | null;
+}
+
+export interface BannerUpdate extends Partial<BannerCreate> {}
+
+export interface CTAOption {
+  label: string;
+  value: string;
+}
+
+export interface CTAOptionsResponse {
+  success: boolean;
+  data: {
+    options: CTAOption[];
+  };
+}
