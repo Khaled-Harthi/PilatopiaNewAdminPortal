@@ -178,22 +178,26 @@ export interface MembershipPlanCreate {
 
 export interface MembershipPlanUpdate extends Partial<MembershipPlanCreate> {}
 
-// Loyalty Tiers (NOT translatable per backend spec)
+// Loyalty Tiers (NOT translatable - uses tier_name directly)
 export interface LoyaltyTier {
   id: string;
-  name: string;
-  min_points: number;
-  color: string | null;
-  is_active: boolean;
+  tier_name: string;
+  min_classes: number;
+  benefits: Record<string, unknown>;
+  tier_color: string | null;
+  sort_order: number;
+  active: boolean;
   created_at: string;
   updated_at: string;
 }
 
 export interface LoyaltyTierCreate {
-  name: string;
-  min_points: number;
-  color?: string | null;
-  is_active?: boolean;
+  tier_name: string;
+  min_classes: number;
+  benefits?: Record<string, unknown>;
+  tier_color?: string | null;
+  sort_order?: number;
+  active?: boolean;
 }
 
 export interface LoyaltyTierUpdate extends Partial<LoyaltyTierCreate> {}
@@ -220,13 +224,22 @@ export interface LoyaltyBadgeCreate {
 
 export interface LoyaltyBadgeUpdate extends Partial<LoyaltyBadgeCreate> {}
 
-// Loyalty Redemptions
+// Loyalty Redemptions (translatable via name_en/ar, description_en/ar)
+export type RedemptionType = 'discount_code' | 'free_class' | 'merchandise';
+
 export interface LoyaltyRedemption {
   id: string;
   name: string;
   description: string | null;
-  points_required: number;
-  is_active: boolean;
+  photo_url: string | null;
+  redemption_type: RedemptionType;
+  points_cost: number;
+  max_per_user: number;
+  total_available: number;
+  total_redeemed: number;
+  valid_from: string | null;
+  valid_until: string | null;
+  active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -236,8 +249,14 @@ export interface LoyaltyRedemptionCreate {
   name_ar: string;
   description_en?: string | null;
   description_ar?: string | null;
-  points_required: number;
-  is_active?: boolean;
+  photo?: File | null;
+  redemption_type: RedemptionType;
+  points_cost: number;
+  max_per_user?: number;
+  total_available?: number;
+  valid_from?: string | null;
+  valid_until?: string | null;
+  active?: boolean;
 }
 
 export interface LoyaltyRedemptionUpdate

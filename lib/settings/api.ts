@@ -25,6 +25,12 @@ import type {
   FAQ,
   FAQCreate,
   FAQUpdate,
+  LoyaltyTier,
+  LoyaltyTierCreate,
+  LoyaltyTierUpdate,
+  LoyaltyRedemption,
+  LoyaltyRedemptionCreate,
+  LoyaltyRedemptionUpdate,
 } from './types';
 
 // Helper to get current locale
@@ -300,4 +306,115 @@ export async function updateFAQ(id: string, payload: FAQUpdate): Promise<FAQ> {
 
 export async function deleteFAQ(id: string): Promise<void> {
   await apiClient.delete(`/admin/content/faq/${id}`);
+}
+
+// ============================================
+// Loyalty Tiers API
+// ============================================
+
+export async function fetchLoyaltyTiers(): Promise<LoyaltyTier[]> {
+  const response = await apiClient.get<{ data: LoyaltyTier[] }>('/admin/loyalty/tiers');
+  return response.data.data;
+}
+
+export async function createLoyaltyTier(payload: LoyaltyTierCreate): Promise<LoyaltyTier> {
+  const response = await apiClient.post<{ data: LoyaltyTier }>('/admin/loyalty/tiers', payload);
+  return response.data.data;
+}
+
+export async function updateLoyaltyTier(
+  id: string,
+  payload: LoyaltyTierUpdate
+): Promise<LoyaltyTier> {
+  const response = await apiClient.put<{ data: LoyaltyTier }>(
+    `/admin/loyalty/tiers/${id}`,
+    payload
+  );
+  return response.data.data;
+}
+
+export async function deleteLoyaltyTier(id: string): Promise<void> {
+  await apiClient.delete(`/admin/loyalty/tiers/${id}`);
+}
+
+// ============================================
+// Loyalty Redemptions API (with multipart support)
+// ============================================
+
+export async function fetchLoyaltyRedemptions(): Promise<LoyaltyRedemption[]> {
+  const response = await apiClient.get<{ data: LoyaltyRedemption[] }>(
+    '/admin/loyalty/redemptions',
+    {
+      params: { lang: getLocale() },
+    }
+  );
+  return response.data.data;
+}
+
+export async function createLoyaltyRedemption(
+  payload: LoyaltyRedemptionCreate
+): Promise<LoyaltyRedemption> {
+  const formData = new FormData();
+
+  formData.append('name_en', payload.name_en);
+  formData.append('name_ar', payload.name_ar);
+  if (payload.description_en) formData.append('description_en', payload.description_en);
+  if (payload.description_ar) formData.append('description_ar', payload.description_ar);
+  formData.append('redemption_type', payload.redemption_type);
+  formData.append('points_cost', payload.points_cost.toString());
+  if (payload.max_per_user !== undefined)
+    formData.append('max_per_user', payload.max_per_user.toString());
+  if (payload.total_available !== undefined)
+    formData.append('total_available', payload.total_available.toString());
+  if (payload.valid_from) formData.append('valid_from', payload.valid_from);
+  if (payload.valid_until) formData.append('valid_until', payload.valid_until);
+  if (payload.active !== undefined) formData.append('active', payload.active.toString());
+  if (payload.photo) formData.append('photo', payload.photo);
+
+  const response = await apiClient.post<{ data: LoyaltyRedemption }>(
+    '/admin/loyalty/redemptions',
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }
+  );
+  return response.data.data;
+}
+
+export async function updateLoyaltyRedemption(
+  id: string,
+  payload: LoyaltyRedemptionUpdate
+): Promise<LoyaltyRedemption> {
+  const formData = new FormData();
+
+  if (payload.name_en) formData.append('name_en', payload.name_en);
+  if (payload.name_ar) formData.append('name_ar', payload.name_ar);
+  if (payload.description_en !== undefined)
+    formData.append('description_en', payload.description_en || '');
+  if (payload.description_ar !== undefined)
+    formData.append('description_ar', payload.description_ar || '');
+  if (payload.redemption_type) formData.append('redemption_type', payload.redemption_type);
+  if (payload.points_cost !== undefined)
+    formData.append('points_cost', payload.points_cost.toString());
+  if (payload.max_per_user !== undefined)
+    formData.append('max_per_user', payload.max_per_user.toString());
+  if (payload.total_available !== undefined)
+    formData.append('total_available', payload.total_available.toString());
+  if (payload.valid_from !== undefined) formData.append('valid_from', payload.valid_from || '');
+  if (payload.valid_until !== undefined) formData.append('valid_until', payload.valid_until || '');
+  if (payload.active !== undefined) formData.append('active', payload.active.toString());
+  if (payload.photo) formData.append('photo', payload.photo);
+
+  const response = await apiClient.put<{ data: LoyaltyRedemption }>(
+    `/admin/loyalty/redemptions/${id}`,
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }
+  );
+  return response.data.data;
+}
+
+export async function deleteLoyaltyRedemption(id: string): Promise<void> {
+  await apiClient.delete(`/admin/loyalty/redemptions/${id}`);
 }

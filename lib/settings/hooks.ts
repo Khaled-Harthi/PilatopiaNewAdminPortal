@@ -32,6 +32,14 @@ import {
   createFAQ,
   updateFAQ,
   deleteFAQ,
+  fetchLoyaltyTiers,
+  createLoyaltyTier,
+  updateLoyaltyTier,
+  deleteLoyaltyTier,
+  fetchLoyaltyRedemptions,
+  createLoyaltyRedemption,
+  updateLoyaltyRedemption,
+  deleteLoyaltyRedemption,
 } from './api';
 import type {
   ClassTypeCreate,
@@ -48,6 +56,10 @@ import type {
   NotificationTemplateUpdate,
   FAQCreate,
   FAQUpdate,
+  LoyaltyTierCreate,
+  LoyaltyTierUpdate,
+  LoyaltyRedemptionCreate,
+  LoyaltyRedemptionUpdate,
 } from './types';
 
 // ============================================
@@ -365,6 +377,98 @@ export function useDeleteFAQ() {
     mutationFn: (id: string) => deleteFAQ(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['faqs'] });
+    },
+  });
+}
+
+// ============================================
+// Loyalty Tiers Hooks
+// ============================================
+
+export function useLoyaltyTiers() {
+  return useQuery({
+    queryKey: ['loyalty-tiers'],
+    queryFn: fetchLoyaltyTiers,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useCreateLoyaltyTier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: LoyaltyTierCreate) => createLoyaltyTier(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loyalty-tiers'] });
+    },
+  });
+}
+
+export function useUpdateLoyaltyTier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: LoyaltyTierUpdate }) =>
+      updateLoyaltyTier(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loyalty-tiers'] });
+    },
+  });
+}
+
+export function useDeleteLoyaltyTier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteLoyaltyTier(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loyalty-tiers'] });
+    },
+  });
+}
+
+// ============================================
+// Loyalty Redemptions Hooks
+// ============================================
+
+export function useLoyaltyRedemptions() {
+  return useQuery({
+    queryKey: ['loyalty-redemptions'],
+    queryFn: fetchLoyaltyRedemptions,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useCreateLoyaltyRedemption() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: LoyaltyRedemptionCreate) => createLoyaltyRedemption(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loyalty-redemptions'] });
+    },
+  });
+}
+
+export function useUpdateLoyaltyRedemption() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: LoyaltyRedemptionUpdate }) =>
+      updateLoyaltyRedemption(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loyalty-redemptions'] });
+    },
+  });
+}
+
+export function useDeleteLoyaltyRedemption() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteLoyaltyRedemption(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loyalty-redemptions'] });
     },
   });
 }
