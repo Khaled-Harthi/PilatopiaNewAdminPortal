@@ -18,6 +18,7 @@ import {
   cancelMemberBooking,
   purchaseMembership,
   renewMembership,
+  lookupMemberByPhone,
 } from './api';
 import type {
   MemberQueryParams,
@@ -66,6 +67,18 @@ export function useMemberProfile(memberId: string | null, enabled: boolean = tru
     queryFn: () => fetchMemberProfile(memberId!),
     staleTime: 1000 * 60 * 2, // 2 minutes
     enabled: enabled && !!memberId,
+  });
+}
+
+/**
+ * Hook to lookup member by phone number
+ */
+export function useLookupMemberByPhone(phoneNumber: string | null, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ['member-phone-lookup', phoneNumber],
+    queryFn: () => lookupMemberByPhone(phoneNumber!),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: enabled && !!phoneNumber,
   });
 }
 

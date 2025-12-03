@@ -3,6 +3,7 @@
  */
 
 import apiClient from '../axios';
+import { normalizePhoneForSearch } from './types';
 import type {
   Member,
   MemberProfile,
@@ -53,11 +54,34 @@ export async function fetchMemberStats(): Promise<MemberStatsResponse> {
 // ============================================
 
 /**
- * Fetches detailed member profile
+ * Fetches detailed member profile by ID or phone number
  */
 export async function fetchMemberProfile(memberId: string): Promise<MemberProfile> {
   const response = await apiClient.get<MemberProfile>(`/admin/members/${memberId}`);
   return response.data;
+}
+
+/**
+ * Looks up a member by phone number and returns their ID
+ * Normalizes phone numbers to handle various Saudi formats (05xx, 5xx, 966xx, +966xx)
+ */
+export async function lookupMemberByPhone(phoneNumber: string): Promise<string | null> {
+  try {
+    // Normalize the phone number to the format expected by the API
+    const normalizedPhone = normalizePhoneForSearch(phoneNumber);
+
+    const response = await apiClient.get<{ members: { id: string }[] }>('/admin/members', {
+      params: { search: normalizedPhone, limit: 1, page: 1 },
+    });
+    const members = response.data.members || [];
+    // Return first exact match
+    if (members.length > 0) {
+      return members[0].id;
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 /**

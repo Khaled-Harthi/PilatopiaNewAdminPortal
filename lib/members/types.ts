@@ -41,6 +41,12 @@ export interface Member {
     totalClasses: number;
     expiryDate: string;
   } | null;
+  // Upcoming membership (starts in the future)
+  upcomingMembership?: {
+    planName: string;
+    totalClasses: number;
+    startDate: string;
+  } | null;
   lastVisit: string | null;
   totalSpent?: number;
 }
@@ -287,4 +293,63 @@ export function formatPhoneForWhatsApp(phone: string): string {
 
 export function getWhatsAppUrl(phone: string): string {
   return `https://wa.me/${formatPhoneForWhatsApp(phone)}`;
+}
+
+/**
+ * Checks if a string looks like a phone number
+ * Returns true if the string contains mostly digits (with optional + prefix)
+ */
+export function isPhoneNumber(value: string): boolean {
+  // Remove common phone formatting characters
+  const cleaned = value.replace(/[\s\-().]/g, '');
+  // Check if it starts with + or digits and is mostly digits
+  if (/^\+?\d{7,15}$/.test(cleaned)) {
+    return true;
+  }
+  // Also match Saudi phone formats like 05XXXXXXXX or 5XXXXXXXX
+  if (/^0?5\d{8}$/.test(cleaned)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Normalizes a phone number to the format expected by the API (+966XXXXXXXXX)
+ * Handles various Saudi phone formats:
+ * - 05XXXXXXXX -> +966XXXXXXXXX
+ * - 5XXXXXXXX -> +9665XXXXXXXX
+ * - 966XXXXXXXXX -> +966XXXXXXXXX
+ * - +966XXXXXXXXX -> +966XXXXXXXXX
+ */
+export function normalizePhoneForSearch(phone: string): string {
+  // Remove common phone formatting characters
+  let cleaned = phone.replace(/[\s\-().]/g, '');
+
+  // Remove leading + if present
+  if (cleaned.startsWith('+')) {
+    cleaned = cleaned.substring(1);
+  }
+
+  // Handle Saudi formats
+  if (cleaned.startsWith('05') && cleaned.length === 10) {
+    // 05XXXXXXXX -> 9665XXXXXXXX
+    return '+966' + cleaned.substring(1);
+  }
+
+  if (cleaned.startsWith('5') && cleaned.length === 9) {
+    // 5XXXXXXXX -> 9665XXXXXXXX
+    return '+966' + cleaned;
+  }
+
+  if (cleaned.startsWith('966') && cleaned.length === 12) {
+    // 966XXXXXXXXX -> +966XXXXXXXXX
+    return '+' + cleaned;
+  }
+
+  // Return as-is with + prefix if it looks like a full international number
+  if (cleaned.length >= 10) {
+    return '+' + cleaned;
+  }
+
+  return phone; // Return original if we can't normalize
 }

@@ -8,6 +8,7 @@ import { startOfWeek, addDays, previousSunday, format } from 'date-fns';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { GlobalSearch } from '@/components/GlobalSearch';
 import { ScheduleHeader } from '@/components/schedule/schedule-header';
 import { ScheduleToolbar, type HourRangeMode } from '@/components/schedule/schedule-toolbar';
 import { ScheduleGrid } from '@/components/schedule/schedule-grid';
@@ -116,6 +117,7 @@ export default function SchedulePage() {
               </div>
             </div>
           </SidebarInset>
+          <GlobalSearch />
         </SidebarProvider>
       </ProtectedRoute>
     );
@@ -178,6 +180,7 @@ export default function SchedulePage() {
             />
           </div>
         </SidebarInset>
+        <GlobalSearch />
       </SidebarProvider>
     </ProtectedRoute>
   );

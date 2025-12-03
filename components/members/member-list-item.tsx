@@ -13,7 +13,12 @@ interface MemberListItemProps {
   locale: string;
 }
 
-function getMemberBadgeType(member: Member): 'expiring' | 'inactive' | 'new' | null {
+function getMemberBadgeType(member: Member): 'expiring' | 'inactive' | 'new' | 'upcoming' | null {
+  // Check for upcoming membership (future start date)
+  if (!member.currentMembership && member.upcomingMembership) {
+    return 'upcoming';
+  }
+
   if (member.currentMembership?.expiryDate) {
     const daysUntilExpiry = differenceInDays(parseISO(member.currentMembership.expiryDate), new Date());
     if (daysUntilExpiry <= 7 && daysUntilExpiry >= 0) {
@@ -55,36 +60,54 @@ function formatLastVisit(lastVisit: string | null | undefined, locale: string): 
   }
 }
 
-function formatMembershipStatus(member: Member, locale: string): { text: string; color: string } {
-  if (!member.currentMembership) {
-    return {
-      text: locale === 'ar' ? 'لا توجد عضوية' : 'No membership',
-      color: 'text-muted-foreground'
-    };
-  }
+function formatMembershipStatus(member: Member, locale: string): { text: string; color: string; subtext?: string } {
+  // Check for current active membership first
+  if (member.currentMembership) {
+    const remaining = member.currentMembership.remainingClasses;
+    const total = member.currentMembership.totalClasses;
+    const expiryDate = parseISO(member.currentMembership.expiryDate);
+    const daysUntilExpiry = differenceInDays(expiryDate, new Date());
 
-  const remaining = member.currentMembership.remainingClasses;
-  const total = member.currentMembership.totalClasses;
-  const expiryDate = parseISO(member.currentMembership.expiryDate);
-  const daysUntilExpiry = differenceInDays(expiryDate, new Date());
+    if (daysUntilExpiry < 0) {
+      return {
+        text: locale === 'ar' ? 'منتهية' : 'Expired',
+        color: 'text-destructive'
+      };
+    }
 
-  if (daysUntilExpiry < 0) {
-    return {
-      text: locale === 'ar' ? 'منتهية' : 'Expired',
-      color: 'text-destructive'
-    };
-  }
+    if (daysUntilExpiry <= 7) {
+      return {
+        text: `${remaining}/${total}`,
+        color: 'text-orange-600'
+      };
+    }
 
-  if (daysUntilExpiry <= 7) {
     return {
       text: `${remaining}/${total}`,
-      color: 'text-orange-600'
+      color: 'text-foreground'
+    };
+  }
+
+  // Check for upcoming membership (starts in the future)
+  if (member.upcomingMembership) {
+    const startDate = parseISO(member.upcomingMembership.startDate);
+    const daysUntilStart = differenceInDays(startDate, new Date());
+    const startText = daysUntilStart === 0
+      ? (locale === 'ar' ? 'يبدأ اليوم' : 'Starts today')
+      : daysUntilStart === 1
+        ? (locale === 'ar' ? 'يبدأ غداً' : 'Starts tomorrow')
+        : (locale === 'ar' ? `يبدأ في ${daysUntilStart} أيام` : `Starts in ${daysUntilStart} days`);
+
+    return {
+      text: member.upcomingMembership.planName,
+      color: 'text-blue-600',
+      subtext: startText
     };
   }
 
   return {
-    text: `${remaining}/${total}`,
-    color: 'text-foreground'
+    text: locale === 'ar' ? 'لا توجد عضوية' : 'No membership',
+    color: 'text-muted-foreground'
   };
 }
 
@@ -116,11 +139,13 @@ export function MemberListItem({ member, locale }: MemberListItemProps) {
               'px-1.5 py-0.5 text-xs font-medium rounded',
               badgeType === 'expiring' && 'bg-orange-100 text-orange-700',
               badgeType === 'inactive' && 'bg-gray-100 text-gray-600',
-              badgeType === 'new' && 'bg-blue-100 text-blue-700'
+              badgeType === 'new' && 'bg-blue-100 text-blue-700',
+              badgeType === 'upcoming' && 'bg-blue-100 text-blue-700'
             )}>
               {badgeType === 'expiring' && (locale === 'ar' ? 'قريب الانتهاء' : 'Expiring')}
               {badgeType === 'inactive' && (locale === 'ar' ? 'غير نشط' : 'Inactive')}
               {badgeType === 'new' && (locale === 'ar' ? 'جديد' : 'New')}
+              {badgeType === 'upcoming' && (locale === 'ar' ? 'قادم' : 'Upcoming')}
             </span>
           )}
         </div>
@@ -145,7 +170,9 @@ export function MemberListItem({ member, locale }: MemberListItemProps) {
         )}
         {/* Mobile: Show membership status inline */}
         <div className="sm:hidden mt-1 text-sm text-muted-foreground">
-          {membershipStatus.text} · {lastVisitText}
+          <span className={membershipStatus.color}>{membershipStatus.text}</span>
+          {membershipStatus.subtext && <span className="text-xs"> ({membershipStatus.subtext})</span>}
+          {' · '}{lastVisitText}
         </div>
       </div>
 
@@ -154,6 +181,11 @@ export function MemberListItem({ member, locale }: MemberListItemProps) {
         <span className={cn('text-sm', membershipStatus.color)}>
           {membershipStatus.text}
         </span>
+        {membershipStatus.subtext && (
+          <div className="text-xs text-muted-foreground">
+            {membershipStatus.subtext}
+          </div>
+        )}
       </div>
 
       {/* Last Visit - Desktop */}

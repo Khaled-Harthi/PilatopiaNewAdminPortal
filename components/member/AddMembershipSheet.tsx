@@ -138,10 +138,11 @@ export function AddMembershipSheet({
 
   const getFinalPrice = (): number => {
     if (!selectedPlan) return 0;
+    const price = Number(selectedPlan.price) || 0;
     if (promoValidation?.valid && promoValidation.discountPercentage) {
-      return selectedPlan.price * (1 - promoValidation.discountPercentage / 100);
+      return price * (1 - promoValidation.discountPercentage / 100);
     }
-    return selectedPlan.price;
+    return price;
   };
 
   const handleSubmit = async () => {
@@ -209,7 +210,7 @@ export function AddMembershipSheet({
                         </p>
                       </div>
                       <span className="text-sm font-semibold shrink-0">
-                        SAR {plan.price}
+                        SAR {Number(plan.price).toFixed(2)}
                       </span>
                     </label>
                   ))}
@@ -310,7 +311,7 @@ export function AddMembershipSheet({
               <div className="text-right">
                 {promoValidation?.valid && selectedPlan && (
                   <span className="text-sm text-muted-foreground line-through mr-2">
-                    SAR {selectedPlan.price}
+                    SAR {Number(selectedPlan.price).toFixed(2)}
                   </span>
                 )}
                 <span className="text-lg font-semibold">

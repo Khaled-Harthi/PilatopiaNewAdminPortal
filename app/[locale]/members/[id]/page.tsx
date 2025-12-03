@@ -1,7 +1,8 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -11,6 +12,7 @@ import {
   useMemberBookings,
   useVisitHistory,
   useCancelMemberBooking,
+  useLookupMemberByPhone,
 } from '@/lib/members/hooks';
 import {
   MemberDetailHeader,
@@ -25,10 +27,34 @@ import { AdjustBalanceDialog } from '@/components/members/adjust-balance-dialog'
 import { ExtendExpiryDialog } from '@/components/members/extend-expiry-dialog';
 import { AddMembershipSheet } from '@/components/member/AddMembershipSheet';
 import type { Membership } from '@/lib/members/types';
+import { isPhoneNumber } from '@/lib/members/types';
 
 export default function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+  const { id: rawId } = use(params);
   const t = useTranslations('MemberProfile');
+  const router = useRouter();
+
+  // Decode URL-encoded phone numbers (e.g., %2B for +)
+  const decodedId = decodeURIComponent(rawId);
+
+  // Check if the ID is a phone number
+  const isPhone = isPhoneNumber(decodedId);
+
+  // Lookup member by phone if needed
+  const { data: lookedUpMemberId, isLoading: isLookingUp } = useLookupMemberByPhone(
+    isPhone ? decodedId : null,
+    isPhone
+  );
+
+  // Redirect to the actual member ID when phone lookup completes
+  useEffect(() => {
+    if (isPhone && lookedUpMemberId) {
+      router.replace(`/members/${lookedUpMemberId}`);
+    }
+  }, [isPhone, lookedUpMemberId, router]);
+
+  // Use the looked up ID or the original ID
+  const id = isPhone ? (lookedUpMemberId || '') : decodedId;
 
   // State
   const [isAddMembershipOpen, setIsAddMembershipOpen] = useState(false);
@@ -46,12 +72,25 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
   // Mutations
   const cancelBooking = useCancelMemberBooking();
 
-  // Loading state
-  if (isLoadingProfile) {
+  // Loading state (including phone lookup)
+  if (isLoadingProfile || isLookingUp) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center py-12">
           <p className="text-muted-foreground">{t('loading')}</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Phone lookup failed - no member found with that phone
+  if (isPhone && !lookedUpMemberId) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">
+            {t('notFound')} (Phone: {decodedId})
+          </p>
         </div>
       </DashboardLayout>
     );

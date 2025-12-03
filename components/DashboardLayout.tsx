@@ -4,6 +4,7 @@ import { useLocale } from 'next-intl'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/AppSidebar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { GlobalSearch } from '@/components/GlobalSearch'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const locale = useLocale()
@@ -18,6 +19,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             {children}
           </main>
         </SidebarInset>
+        <GlobalSearch />
       </SidebarProvider>
     </ProtectedRoute>
   )
