@@ -111,12 +111,23 @@ function formatMembershipStatus(member: Member, locale: string): { text: string;
   };
 }
 
+function getBirthYear(birthDate: string | null | undefined): string | null {
+  if (!birthDate) return null;
+  try {
+    const date = parseISO(birthDate);
+    return date.getFullYear().toString();
+  } catch {
+    return null;
+  }
+}
+
 export function MemberListItem({ member, locale }: MemberListItemProps) {
   const isRtl = locale === 'ar';
   const badgeType = getMemberBadgeType(member);
   const lastVisitText = formatLastVisit(member.lastVisit, locale);
   const membershipStatus = formatMembershipStatus(member, locale);
   const whatsAppUrl = member.phoneNumber ? getWhatsAppUrl(member.phoneNumber) : null;
+  const birthYear = getBirthYear(member.birthDate);
 
   return (
     <Link
@@ -149,25 +160,33 @@ export function MemberListItem({ member, locale }: MemberListItemProps) {
             </span>
           )}
         </div>
-        {/* Phone number row */}
-        {member.phoneNumber && (
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-sm text-muted-foreground">{member.phoneNumber}</span>
-            {whatsAppUrl && (
-              <button
-                type="button"
-                className="text-green-600 hover:text-green-700"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.open(whatsAppUrl, '_blank', 'noopener,noreferrer');
-                }}
-              >
-                <MessageSquare className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-        )}
+        {/* Phone number & birth year row */}
+        <div className="flex items-center gap-2 mt-0.5">
+          {member.phoneNumber && (
+            <>
+              <span className="text-sm text-muted-foreground">{member.phoneNumber}</span>
+              {whatsAppUrl && (
+                <button
+                  type="button"
+                  className="text-green-600 hover:text-green-700"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(whatsAppUrl, '_blank', 'noopener,noreferrer');
+                  }}
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </>
+          )}
+          {birthYear && (
+            <>
+              {member.phoneNumber && <span className="text-muted-foreground">·</span>}
+              <span className="text-sm text-muted-foreground">{birthYear}</span>
+            </>
+          )}
+        </div>
         {/* Mobile: Show membership status inline */}
         <div className="sm:hidden mt-1 text-sm text-muted-foreground">
           <span className={membershipStatus.color}>{membershipStatus.text}</span>
