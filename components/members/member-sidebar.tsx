@@ -22,11 +22,20 @@ function formatJoinDate(dateStr: string): string | null {
   }
 }
 
-function formatBirthday(dateStr: string | null): string | null {
+function formatBirthdayWithAge(dateStr: string | null): { date: string; age: number } | null {
   if (!dateStr) return null;
   try {
     const date = parseISO(dateStr);
-    return format(date, 'MMMM d');
+    const today = new Date();
+    let age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+      age--;
+    }
+    return {
+      date: format(date, 'd MMMM yyyy'),
+      age,
+    };
   } catch {
     return null;
   }
@@ -34,7 +43,7 @@ function formatBirthday(dateStr: string | null): string | null {
 
 export function MemberSidebar({ member }: MemberSidebarProps) {
   const joinDate = formatJoinDate(member.joiningDate);
-  const birthday = formatBirthday(member.birthDate);
+  const birthdayInfo = formatBirthdayWithAge(member.birthDate);
   const whatsAppUrl = member.phoneNumber ? getWhatsAppUrl(member.phoneNumber) : null;
 
   return (
@@ -91,10 +100,10 @@ export function MemberSidebar({ member }: MemberSidebarProps) {
               <p className="text-sm">{joinDate}</p>
             </div>
           )}
-          {birthday && (
+          {birthdayInfo && (
             <div>
               <p className="text-xs text-muted-foreground">Birthday</p>
-              <p className="text-sm">{birthday}</p>
+              <p className="text-sm">{birthdayInfo.date} ({birthdayInfo.age} yrs)</p>
             </div>
           )}
         </div>

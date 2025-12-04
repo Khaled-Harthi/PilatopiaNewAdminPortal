@@ -16,11 +16,20 @@ interface MemberProfileHeaderProps {
 export function MemberProfileHeader({ member }: MemberProfileHeaderProps) {
   const t = useTranslations('MemberProfile');
 
-  const formatBirthday = (dateStr: string | null) => {
+  const formatBirthdayWithAge = (dateStr: string | null): { date: string; age: number } | null => {
     if (!dateStr) return null;
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return null;
-    return format(date, 'MMMM d');
+    const today = new Date();
+    let age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+      age--;
+    }
+    return {
+      date: format(date, 'd MMMM yyyy'),
+      age,
+    };
   };
 
   const formatJoinDate = (dateStr: string) => {
@@ -92,9 +101,12 @@ export function MemberProfileHeader({ member }: MemberProfileHeaderProps) {
             {formatJoinDate(member.joiningDate) && (
               <p>Member since {formatJoinDate(member.joiningDate)}</p>
             )}
-            {formatBirthday(member.birthDate) && (
-              <p>Birthday {formatBirthday(member.birthDate)}</p>
-            )}
+            {(() => {
+              const birthdayInfo = formatBirthdayWithAge(member.birthDate);
+              return birthdayInfo && (
+                <p>Birthday {birthdayInfo.date} ({birthdayInfo.age} yrs)</p>
+              );
+            })()}
           </div>
         </div>
       </CardContent>
