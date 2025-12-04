@@ -91,49 +91,52 @@ function MembershipCard({
         </span>
       </div>
 
-      {/* Progress Bar - only show for non-upcoming */}
-      {!isUpcoming && (
-        <div className="mb-1">
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div
-              className={cn(
-                'h-full rounded-full transition-all',
-                urgency === 'critical' ? 'bg-red-500' :
-                urgency === 'warning' ? 'bg-orange-500' : 'bg-primary'
-              )}
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
+      {/* Progress Bar */}
+      <div className="mb-1">
+        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+          <div
+            className={cn(
+              'h-full rounded-full transition-all',
+              isUpcoming ? 'bg-blue-500' :
+              urgency === 'critical' ? 'bg-red-500' :
+              urgency === 'warning' ? 'bg-orange-500' : 'bg-primary'
+            )}
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
-      )}
+      </div>
 
       {/* Stats Row */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-1">
         <p className="text-sm">
-          {isUpcoming ? (
-            <span className="text-muted-foreground">{total} classes</span>
-          ) : (
-            <>
-              <span className="font-semibold">{used}/{total}</span>
-              <span className="text-muted-foreground ml-1">used</span>
-            </>
-          )}
+          <span className="font-semibold">{used}/{total}</span>
+          <span className="text-muted-foreground ml-1">used</span>
         </p>
         <p
           className={cn(
             'text-xs',
-            isUpcoming ? 'text-blue-600 font-medium' :
+            isUpcoming ? 'text-muted-foreground' :
             urgency === 'critical' ? 'text-red-600 font-medium' :
             urgency === 'warning' ? 'text-orange-600 font-medium' :
             'text-muted-foreground'
           )}
         >
-          {isUpcoming ? startText : expiryText}
+          {expiryText}
         </p>
       </div>
 
+      {/* Start Date - only for upcoming */}
+      {isUpcoming && startText && (
+        <p className="text-xs text-blue-600 font-medium mb-3">
+          {startText}
+        </p>
+      )}
+
+      {/* Spacer for non-upcoming */}
+      {!isUpcoming && <div className="mb-2" />}
+
       {/* Actions - Full-width grid on mobile, inline on desktop */}
-      {!isUpcoming && (
+      {(onExtendExpiry || onAddClass) && (
         <div className="grid grid-cols-2 gap-2 md:flex md:gap-2">
           {onExtendExpiry && (
             <Button variant="ghost" size="sm" className="w-full md:w-auto" onClick={() => onExtendExpiry(membership)}>
@@ -189,6 +192,8 @@ export function MembershipStatusCard({
         <MembershipCard
           key={membership.id}
           membership={membership}
+          onExtendExpiry={onExtendExpiry}
+          onAddClass={onAddClass}
         />
       ))}
       {/* Add membership button - always visible */}

@@ -161,7 +161,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
 
   const currentMemberships = membershipsData?.current ?? [];
   const upcomingMemberships = membershipsData?.upcoming ?? [];
-  const hasActiveMembership = currentMemberships.length > 0;
+  const hasMembership = currentMemberships.length > 0 || upcomingMemberships.length > 0;
 
   return (
     <DashboardLayout>
@@ -180,8 +180,8 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
             current={currentMemberships}
             upcoming={upcomingMemberships}
             onAddMembership={() => setIsAddMembershipOpen(true)}
-            onExtendExpiry={hasActiveMembership ? handleExtendExpiry : undefined}
-            onAddClass={hasActiveMembership ? handleAddClass : undefined}
+            onExtendExpiry={hasMembership ? handleExtendExpiry : undefined}
+            onAddClass={hasMembership ? handleAddClass : undefined}
           />
 
           {/* Upcoming Classes */}
