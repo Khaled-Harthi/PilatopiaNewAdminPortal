@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { RichTextEditor } from '@/components/form/rich-text-editor';
 import { SimpleDateTimePicker } from '@/components/form/simple-date-time-picker';
+import { ImageUpload } from '@/components/form/image-upload';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useBanner,
@@ -29,7 +30,8 @@ import type { BannerCreate, BannerDisplayType } from '@/lib/settings/types';
 import { toast } from 'sonner';
 
 interface BannerFormData {
-  image_url: string;
+  image_file: File | null;
+  existing_image_url: string;
   title: string;
   title_ar: string;
   subtitle: string;
@@ -78,7 +80,8 @@ export function BannerForm({ bannerId }: BannerFormProps) {
     formState: { errors },
   } = useForm<BannerFormData>({
     defaultValues: {
-      image_url: '',
+      image_file: null,
+      existing_image_url: '',
       title: '',
       title_ar: '',
       subtitle: '',
@@ -97,7 +100,8 @@ export function BannerForm({ bannerId }: BannerFormProps) {
 
   const watchedCtaLink = watch('cta_link');
   const watchedDisplayType = watch('display_type');
-  const watchedImageUrl = watch('image_url');
+  const watchedImageFile = watch('image_file');
+  const watchedExistingImageUrl = watch('existing_image_url');
   const watchedContentHtml = watch('content_html');
   const watchedContentHtmlAr = watch('content_html_ar');
   const watchedStartDate = watch('start_date');
@@ -111,7 +115,8 @@ export function BannerForm({ bannerId }: BannerFormProps) {
         !ctaOptions.some((opt) => opt.value === bannerData.cta_link);
 
       reset({
-        image_url: bannerData.image_url || '',
+        image_file: null,
+        existing_image_url: bannerData.image_url || '',
         title: bannerData.title || '',
         title_ar: bannerData.title_ar || '',
         subtitle: bannerData.subtitle || '',
@@ -132,11 +137,18 @@ export function BannerForm({ bannerId }: BannerFormProps) {
   }, [bannerId, bannerData, reset, ctaOptions]);
 
   const handleFormSubmit = async (data: BannerFormData) => {
+    // Validate that we have an image (either new file or existing URL)
+    if (!data.image_file && !data.existing_image_url) {
+      toast.error(isRTL ? 'الرجاء رفع صورة' : 'Please upload an image');
+      return;
+    }
+
     const finalCtaLink =
       data.cta_link === CUSTOM_URL_VALUE ? data.custom_cta_link : data.cta_link;
 
     const payload: BannerCreate = {
-      image_url: data.image_url,
+      image_file: data.image_file,
+      image_url: !data.image_file ? data.existing_image_url : undefined,
       title: data.title,
       title_ar: data.title_ar || undefined,
       subtitle: data.subtitle || undefined,
@@ -210,33 +222,29 @@ export function BannerForm({ bannerId }: BannerFormProps) {
         onSubmit={handleSubmit(handleFormSubmit)}
         className="space-y-6 max-w-2xl"
       >
-        {/* Image URL */}
+        {/* Image Upload */}
         <div className="space-y-2">
-          <Label htmlFor="image_url">
-            {isRTL ? 'رابط الصورة' : 'Image URL'} *
+          <Label>
+            {isRTL ? 'صورة البانر' : 'Banner Image'} *
           </Label>
-          <Input
-            id="image_url"
-            {...register('image_url', { required: true })}
-            placeholder="https://cdn.example.com/banner.jpg"
+          <ImageUpload
+            value={watchedImageFile}
+            existingUrl={watchedExistingImageUrl || undefined}
+            onChange={(file) => setValue('image_file', file)}
+            onClearExisting={() => setValue('existing_image_url', '')}
+            aspectRatio="2/1"
+            maxSize={5}
+            placeholder={
+              isRTL
+                ? 'اسحب وأفلت صورة، أو انقر للاختيار'
+                : 'Drag and drop an image, or click to select'
+            }
+            helperText={
+              isRTL
+                ? 'الأبعاد الموصى بها: 800x400 بكسل (نسبة 2:1)'
+                : 'Recommended: 800x400px (2:1 ratio)'
+            }
           />
-          {watchedImageUrl && (
-            <div className="mt-2 relative rounded-lg overflow-hidden border bg-muted/30">
-              <img
-                src={watchedImageUrl}
-                alt="Banner preview"
-                className="w-full h-32 object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">
-            {isRTL
-              ? 'الأبعاد الموصى بها: 800x400 بكسل (نسبة 2:1)'
-              : 'Recommended: 800x400px (2:1 ratio)'}
-          </p>
         </div>
 
         {/* Content Tabs */}
