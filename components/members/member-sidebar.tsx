@@ -1,9 +1,17 @@
 'use client';
 
-import { MessageCircle, User } from 'lucide-react';
+import { useState } from 'react';
+import { MessageCircle, User, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from '@/components/ui/responsive-dialog';
 import { LoyaltyTierBadge } from './loyalty-tier-badge';
 import type { MemberProfile } from '@/lib/members/types';
 import { getWhatsAppUrl } from '@/lib/members/types';
@@ -42,6 +50,7 @@ function formatBirthdayWithAge(dateStr: string | null): { date: string; age: num
 }
 
 export function MemberSidebar({ member }: MemberSidebarProps) {
+  const [showQrDialog, setShowQrDialog] = useState(false);
   const joinDate = formatJoinDate(member.joiningDate);
   const birthdayInfo = formatBirthdayWithAge(member.birthDate);
   const whatsAppUrl = member.phoneNumber ? getWhatsAppUrl(member.phoneNumber) : null;
@@ -71,18 +80,27 @@ export function MemberSidebar({ member }: MemberSidebarProps) {
           </div>
         )}
 
-        {/* WhatsApp Button - Primary action */}
+        {/* WhatsApp Buttons - Primary actions */}
         {whatsAppUrl && (
-          <Button
-            size="sm"
-            className="mb-2 gap-2 bg-green-600 hover:bg-green-700 text-white"
-            asChild
-          >
-            <a href={whatsAppUrl} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp
-            </a>
-          </Button>
+          <div className="flex gap-2 mb-2">
+            <Button
+              size="sm"
+              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+              asChild
+            >
+              <a href={whatsAppUrl} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </a>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowQrDialog(true)}
+            >
+              <QrCode className="h-4 w-4" />
+            </Button>
+          </div>
         )}
 
         {/* Phone Number - Secondary info */}
@@ -108,6 +126,30 @@ export function MemberSidebar({ member }: MemberSidebarProps) {
           )}
         </div>
       </div>
+
+      {/* WhatsApp QR Code Dialog */}
+      {whatsAppUrl && (
+        <ResponsiveDialog open={showQrDialog} onOpenChange={setShowQrDialog}>
+          <ResponsiveDialogContent>
+            <ResponsiveDialogHeader>
+              <ResponsiveDialogTitle>WhatsApp QR Code</ResponsiveDialogTitle>
+            </ResponsiveDialogHeader>
+            <div className="flex flex-col items-center py-6">
+              <div className="bg-white p-4 rounded-lg">
+                <QRCodeSVG
+                  value={whatsAppUrl}
+                  size={200}
+                  level="M"
+                  includeMargin
+                />
+              </div>
+              <p className="text-sm text-muted-foreground mt-4 text-center">
+                Scan to open WhatsApp chat with {member.name}
+              </p>
+            </div>
+          </ResponsiveDialogContent>
+        </ResponsiveDialog>
+      )}
     </aside>
   );
 }
