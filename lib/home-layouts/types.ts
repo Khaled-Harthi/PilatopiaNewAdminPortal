@@ -53,8 +53,8 @@ export interface ComponentAction {
 // ============================================
 
 export interface DynamicCardProps {
-  title_en: string;
-  title_ar: string;
+  title_en?: string;
+  title_ar?: string;
   description_en?: string;
   description_ar?: string;
   subtitle_en?: string;
@@ -63,6 +63,12 @@ export interface DynamicCardProps {
   ctaText_ar?: string;
   imageUrl?: string;
   backgroundColor?: string;
+  titleColor?: string;
+  descriptionColor?: string;
+  ctaBackgroundColor?: string;
+  ctaTextColor?: string;
+  imagePosition?: 'left' | 'right';
+  borderRadius?: number;
   action?: ComponentAction;
 }
 
@@ -89,8 +95,8 @@ export interface DynamicImageListItem {
 }
 
 export interface DynamicImageListProps {
-  title_en: string;
-  title_ar: string;
+  title_en?: string;
+  title_ar?: string;
   items: DynamicImageListItem[];
   layout?: {
     itemWidth?: number;

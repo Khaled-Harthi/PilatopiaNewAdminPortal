@@ -46,11 +46,21 @@ interface FormData {
   title_ar: string;
   description_en: string;
   description_ar: string;
+  // CTA text (for card)
+  cta_text_en: string;
+  cta_text_ar: string;
   // Image handling (for card/banner)
   image_file: File | null;
   existing_image_url: string;
   // Styling
   background_color: string;
+  // Card-specific styling
+  title_color: string;
+  description_color: string;
+  cta_background_color: string;
+  cta_text_color: string;
+  image_position: 'left' | 'right';
+  card_border_radius: number;
   // Action
   action_type: 'none' | 'deep_link' | 'external_url' | 'screen';
   action_target: string;
@@ -138,9 +148,18 @@ export function ConfigureComponentDialog({
       title_ar: '',
       description_en: '',
       description_ar: '',
+      cta_text_en: '',
+      cta_text_ar: '',
       image_file: null,
       existing_image_url: '',
-      background_color: '#FFFFFF',
+      background_color: '#4A90D9',
+      // Card styling defaults
+      title_color: '#FFFFFF',
+      description_color: '#E0E0E0',
+      cta_background_color: '#FFFFFF',
+      cta_text_color: '#4A90D9',
+      image_position: 'left',
+      card_border_radius: 20,
       action_type: 'none',
       action_target: '',
       action_title: '',
@@ -160,6 +179,7 @@ export function ConfigureComponentDialog({
   const watchedExistingImageUrl = watch('existing_image_url');
   const watchedActionType = watch('action_type');
   const watchedBackgroundColor = watch('background_color');
+  const watchedImagePosition = watch('image_position');
   const watchedShowLabels = watch('show_labels');
   const watchedSeeAllActionType = watch('see_all_action_type');
 
@@ -188,9 +208,18 @@ export function ConfigureComponentDialog({
         title_ar: props?.title_ar || '',
         description_en: cardProps?.description_en || '',
         description_ar: cardProps?.description_ar || '',
+        cta_text_en: cardProps?.ctaText_en || '',
+        cta_text_ar: cardProps?.ctaText_ar || '',
         image_file: null,
         existing_image_url: cardProps?.imageUrl || '',
-        background_color: cardProps?.backgroundColor || '#FFFFFF',
+        background_color: cardProps?.backgroundColor || '#4A90D9',
+        // Card styling
+        title_color: cardProps?.titleColor || '#FFFFFF',
+        description_color: cardProps?.descriptionColor || '#E0E0E0',
+        cta_background_color: cardProps?.ctaBackgroundColor || '#FFFFFF',
+        cta_text_color: cardProps?.ctaTextColor || '#4A90D9',
+        image_position: cardProps?.imagePosition || 'left',
+        card_border_radius: cardProps?.borderRadius ?? 20,
         action_type: mappedActionType,
         action_target: cardProps?.action?.target || '',
         action_title: cardProps?.action?.title || '',
@@ -231,9 +260,17 @@ export function ConfigureComponentDialog({
         title_ar: '',
         description_en: '',
         description_ar: '',
+        cta_text_en: '',
+        cta_text_ar: '',
         image_file: null,
         existing_image_url: '',
-        background_color: '#FFFFFF',
+        background_color: '#4A90D9',
+        title_color: '#FFFFFF',
+        description_color: '#E0E0E0',
+        cta_background_color: '#FFFFFF',
+        cta_text_color: '#4A90D9',
+        image_position: 'left',
+        card_border_radius: 20,
         action_type: 'none',
         action_target: '',
         action_title: '',
@@ -326,12 +363,20 @@ export function ConfigureComponentDialog({
         }
 
         const cardProps: DynamicCardProps = {
-          title_en: data.title_en,
-          title_ar: data.title_ar,
+          title_en: data.title_en || undefined,
+          title_ar: data.title_ar || undefined,
           description_en: data.description_en || undefined,
           description_ar: data.description_ar || undefined,
+          ctaText_en: data.cta_text_en || undefined,
+          ctaText_ar: data.cta_text_ar || undefined,
           imageUrl: imageUrl || undefined,
           backgroundColor: data.background_color || undefined,
+          titleColor: data.title_color || undefined,
+          descriptionColor: data.description_color || undefined,
+          ctaBackgroundColor: data.cta_background_color || undefined,
+          ctaTextColor: data.cta_text_color || undefined,
+          imagePosition: data.image_position || undefined,
+          borderRadius: data.card_border_radius || undefined,
           action:
             data.action_type !== 'none'
               ? {
@@ -378,8 +423,8 @@ export function ConfigureComponentDialog({
         }
 
         const imageListProps: DynamicImageListProps = {
-          title_en: data.title_en,
-          title_ar: data.title_ar,
+          title_en: data.title_en || undefined,
+          title_ar: data.title_ar || undefined,
           items: uploadedItems,
           showLabels: data.show_labels,
           layout: {
@@ -429,6 +474,8 @@ export function ConfigureComponentDialog({
   const showAction = type === 'dynamic_card' || type === 'dynamic_banner';
   const showImageList = type === 'dynamic_image_list';
   const showBackgroundColor = type === 'dynamic_card' || type === 'dynamic_banner';
+  const showCtaText = type === 'dynamic_card';
+  const showCardStyling = type === 'dynamic_card';
 
   return (
     <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
@@ -486,7 +533,7 @@ export function ConfigureComponentDialog({
             {showBackgroundColor && (
               <div className="space-y-2">
                 <Label>{isRTL ? 'لون الخلفية' : 'Background Color'}</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {defaultColors.map((color) => (
                     <button
                       key={color}
@@ -500,6 +547,93 @@ export function ConfigureComponentDialog({
                       style={{ backgroundColor: color }}
                     />
                   ))}
+                </div>
+                <Input
+                  value={watchedBackgroundColor}
+                  onChange={(e) => setValue('background_color', e.target.value)}
+                  placeholder="#4A90D9"
+                  className="mt-2"
+                />
+              </div>
+            )}
+
+            {/* Card Styling */}
+            {showCardStyling && (
+              <div className="space-y-4 pt-4 border-t">
+                <h4 className="text-sm font-medium">
+                  {isRTL ? 'تخصيص الألوان' : 'Color Customization'}
+                </h4>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Title Color */}
+                  <div className="space-y-2">
+                    <Label>{isRTL ? 'لون العنوان' : 'Title Color'}</Label>
+                    <Input
+                      {...register('title_color')}
+                      placeholder="#FFFFFF"
+                    />
+                  </div>
+
+                  {/* Description Color */}
+                  <div className="space-y-2">
+                    <Label>{isRTL ? 'لون الوصف' : 'Description Color'}</Label>
+                    <Input
+                      {...register('description_color')}
+                      placeholder="#E0E0E0"
+                    />
+                  </div>
+
+                  {/* CTA Background Color */}
+                  <div className="space-y-2">
+                    <Label>{isRTL ? 'لون خلفية الزر' : 'Button Background'}</Label>
+                    <Input
+                      {...register('cta_background_color')}
+                      placeholder="#FFFFFF"
+                    />
+                  </div>
+
+                  {/* CTA Text Color */}
+                  <div className="space-y-2">
+                    <Label>{isRTL ? 'لون نص الزر' : 'Button Text Color'}</Label>
+                    <Input
+                      {...register('cta_text_color')}
+                      placeholder="#4A90D9"
+                    />
+                  </div>
+                </div>
+
+                {/* Image Position */}
+                <div className="space-y-2">
+                  <Label>{isRTL ? 'موضع الصورة' : 'Image Position'}</Label>
+                  <Select
+                    value={watchedImagePosition}
+                    onValueChange={(value) =>
+                      setValue('image_position', value as 'left' | 'right')
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="left">
+                        {isRTL ? 'يسار' : 'Left'}
+                      </SelectItem>
+                      <SelectItem value="right">
+                        {isRTL ? 'يمين' : 'Right'}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Border Radius */}
+                <div className="space-y-2">
+                  <Label>{isRTL ? 'انحناء الزوايا' : 'Border Radius'}</Label>
+                  <Input
+                    type="number"
+                    {...register('card_border_radius', { valueAsNumber: true })}
+                    min={0}
+                    max={50}
+                  />
                 </div>
               </div>
             )}
@@ -518,11 +652,11 @@ export function ConfigureComponentDialog({
               <TabsContent value="english" className="space-y-4 mt-4">
                 <div className="space-y-2">
                   <Label htmlFor="title_en">
-                    {isRTL ? 'العنوان (EN)' : 'Title (EN)'} *
+                    {isRTL ? 'العنوان (EN)' : 'Title (EN)'}
                   </Label>
                   <Input
                     id="title_en"
-                    {...register('title_en', { required: true })}
+                    {...register('title_en')}
                     placeholder="Summer Special"
                   />
                 </div>
@@ -540,16 +674,29 @@ export function ConfigureComponentDialog({
                     />
                   </div>
                 )}
+
+                {showCtaText && (
+                  <div className="space-y-2">
+                    <Label htmlFor="cta_text_en">
+                      {isRTL ? 'نص الزر (EN)' : 'Button Text (EN)'}
+                    </Label>
+                    <Input
+                      id="cta_text_en"
+                      {...register('cta_text_en')}
+                      placeholder="Book Now"
+                    />
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="arabic" className="space-y-4 mt-4">
                 <div className="space-y-2">
                   <Label htmlFor="title_ar">
-                    {isRTL ? 'العنوان (AR)' : 'Title (AR)'} *
+                    {isRTL ? 'العنوان (AR)' : 'Title (AR)'}
                   </Label>
                   <Input
                     id="title_ar"
-                    {...register('title_ar', { required: true })}
+                    {...register('title_ar')}
                     placeholder="عرض الصيف"
                     dir="rtl"
                   />
@@ -565,6 +712,20 @@ export function ConfigureComponentDialog({
                       {...register('description_ar')}
                       placeholder="احصل على خصم 20% على جميع الحصص هذا الصيف"
                       rows={3}
+                      dir="rtl"
+                    />
+                  </div>
+                )}
+
+                {showCtaText && (
+                  <div className="space-y-2">
+                    <Label htmlFor="cta_text_ar">
+                      {isRTL ? 'نص الزر (AR)' : 'Button Text (AR)'}
+                    </Label>
+                    <Input
+                      id="cta_text_ar"
+                      {...register('cta_text_ar')}
+                      placeholder="احجز الآن"
                       dir="rtl"
                     />
                   </div>
