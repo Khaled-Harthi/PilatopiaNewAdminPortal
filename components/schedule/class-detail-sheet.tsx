@@ -192,9 +192,10 @@ export function ClassDetailSheet({
     if (!classData) return;
 
     try {
-      // Build scheduleTime in ISO format (combine date and time)
+      // Convert local time (UTC+3) to UTC for the API
       const dateStr = format(scheduleDate, 'yyyy-MM-dd');
-      const scheduleTime = `${dateStr}T${values.time}:00`;
+      const utcResult = toUTC(values.time, dateStr);
+      const scheduleTime = `${utcResult.date}T${utcResult.time}:00`;
 
       await updateClass.mutateAsync({
         classId: classData.id,
