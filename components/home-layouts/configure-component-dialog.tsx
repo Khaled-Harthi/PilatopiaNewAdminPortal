@@ -37,7 +37,7 @@ import type {
   ComponentProps,
 } from '@/lib/home-layouts/types';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, resizeImage } from '@/lib/utils';
 
 interface FormData {
   component_id: string;
@@ -314,11 +314,12 @@ export function ConfigureComponentDialog({
       let props: ComponentProps = null;
 
       if (type === 'dynamic_card' || type === 'dynamic_banner') {
-        // Upload main image if needed
+        // Upload main image if needed (resize to 500px width first)
         let imageUrl = data.existing_image_url;
         if (data.image_file) {
+          const resizedFile = await resizeImage(data.image_file, 500);
           const uploadResult = await uploadMutation.mutateAsync({
-            file: data.image_file,
+            file: resizedFile,
             folder: 'home-layouts',
           });
           imageUrl = uploadResult.url;
@@ -347,10 +348,11 @@ export function ConfigureComponentDialog({
         for (const item of imageListItems) {
           let imageUrl = item.existingUrl;
 
-          // Upload new image if provided
+          // Upload new image if provided (resize to 500px width first)
           if (item.imageFile) {
+            const resizedFile = await resizeImage(item.imageFile, 500);
             const uploadResult = await uploadMutation.mutateAsync({
-              file: item.imageFile,
+              file: resizedFile,
               folder: 'home-layouts',
             });
             imageUrl = uploadResult.url;
