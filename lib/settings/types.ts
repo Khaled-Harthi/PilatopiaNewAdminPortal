@@ -361,8 +361,7 @@ export interface BannerWithTranslations extends Banner {
 }
 
 export interface BannerCreate {
-  image_url?: string;
-  image_file?: File | null;
+  image_url: string;
   title: string;
   title_ar?: string;
   subtitle?: string | null;

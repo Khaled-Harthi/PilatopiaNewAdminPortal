@@ -456,66 +456,17 @@ export async function fetchBanner(id: number): Promise<BannerWithTranslations> {
 }
 
 export async function createBanner(payload: BannerCreate): Promise<Banner> {
-  const formData = new FormData();
-
-  if (payload.image_file) {
-    formData.append('image', payload.image_file);
-  } else if (payload.image_url) {
-    formData.append('image_url', payload.image_url);
-  }
-
-  formData.append('title', payload.title);
-  if (payload.title_ar) formData.append('title_ar', payload.title_ar);
-  if (payload.subtitle) formData.append('subtitle', payload.subtitle);
-  if (payload.subtitle_ar) formData.append('subtitle_ar', payload.subtitle_ar);
-  formData.append('content_html', payload.content_html);
-  if (payload.content_html_ar) formData.append('content_html_ar', payload.content_html_ar);
-  if (payload.cta_text) formData.append('cta_text', payload.cta_text);
-  if (payload.cta_text_ar) formData.append('cta_text_ar', payload.cta_text_ar);
-  if (payload.cta_link) formData.append('cta_link', payload.cta_link);
-  formData.append('display_type', payload.display_type);
-  if (payload.start_date) formData.append('start_date', payload.start_date);
-  if (payload.end_date) formData.append('end_date', payload.end_date);
-
   const response = await apiClient.post<{ success: boolean; data: Banner; message: string }>(
     '/admin/content/banners',
-    formData,
-    {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }
+    payload
   );
   return response.data.data;
 }
 
 export async function updateBanner(id: number, payload: BannerUpdate): Promise<Banner> {
-  const formData = new FormData();
-
-  if (payload.image_file) {
-    formData.append('image', payload.image_file);
-  } else if (payload.image_url !== undefined) {
-    formData.append('image_url', payload.image_url || '');
-  }
-
-  if (payload.title !== undefined) formData.append('title', payload.title);
-  if (payload.title_ar !== undefined) formData.append('title_ar', payload.title_ar || '');
-  if (payload.subtitle !== undefined) formData.append('subtitle', payload.subtitle || '');
-  if (payload.subtitle_ar !== undefined) formData.append('subtitle_ar', payload.subtitle_ar || '');
-  if (payload.content_html !== undefined) formData.append('content_html', payload.content_html);
-  if (payload.content_html_ar !== undefined)
-    formData.append('content_html_ar', payload.content_html_ar || '');
-  if (payload.cta_text !== undefined) formData.append('cta_text', payload.cta_text || '');
-  if (payload.cta_text_ar !== undefined) formData.append('cta_text_ar', payload.cta_text_ar || '');
-  if (payload.cta_link !== undefined) formData.append('cta_link', payload.cta_link || '');
-  if (payload.display_type !== undefined) formData.append('display_type', payload.display_type);
-  if (payload.start_date !== undefined) formData.append('start_date', payload.start_date || '');
-  if (payload.end_date !== undefined) formData.append('end_date', payload.end_date || '');
-
   const response = await apiClient.put<{ success: boolean; data: Banner; message: string }>(
     `/admin/content/banners/${id}`,
-    formData,
-    {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }
+    payload
   );
   return response.data.data;
 }

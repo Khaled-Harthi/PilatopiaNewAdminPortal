@@ -26,6 +26,7 @@ import {
   useCreateBanner,
   useUpdateBanner,
 } from '@/lib/settings/hooks';
+import { useUploadMedia } from '@/lib/media';
 import type { BannerCreate, BannerDisplayType } from '@/lib/settings/types';
 import { toast } from 'sonner';
 
@@ -67,9 +68,11 @@ export function BannerForm({ bannerId }: BannerFormProps) {
   const { data: ctaOptions = [] } = useBannerCTAOptions();
   const createMutation = useCreateBanner();
   const updateMutation = useUpdateBanner();
+  const uploadMutation = useUploadMedia();
 
   const isEditing = !!bannerId;
-  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const isSubmitting =
+    createMutation.isPending || updateMutation.isPending || uploadMutation.isPending;
 
   const {
     register,
@@ -143,27 +146,36 @@ export function BannerForm({ bannerId }: BannerFormProps) {
       return;
     }
 
-    const finalCtaLink =
-      data.cta_link === CUSTOM_URL_VALUE ? data.custom_cta_link : data.cta_link;
-
-    const payload: BannerCreate = {
-      image_file: data.image_file,
-      image_url: !data.image_file ? data.existing_image_url : undefined,
-      title: data.title,
-      title_ar: data.title_ar || undefined,
-      subtitle: data.subtitle || undefined,
-      subtitle_ar: data.subtitle_ar || undefined,
-      content_html: data.content_html,
-      content_html_ar: data.content_html_ar || undefined,
-      cta_text: data.cta_text || undefined,
-      cta_text_ar: data.cta_text_ar || undefined,
-      cta_link: finalCtaLink || undefined,
-      display_type: data.display_type,
-      start_date: data.start_date ? data.start_date.toISOString() : undefined,
-      end_date: data.end_date ? data.end_date.toISOString() : undefined,
-    };
-
     try {
+      // Upload image first if there's a new file
+      let imageUrl = data.existing_image_url;
+      if (data.image_file) {
+        const uploadResult = await uploadMutation.mutateAsync({
+          file: data.image_file,
+          folder: 'banners',
+        });
+        imageUrl = uploadResult.url;
+      }
+
+      const finalCtaLink =
+        data.cta_link === CUSTOM_URL_VALUE ? data.custom_cta_link : data.cta_link;
+
+      const payload: BannerCreate = {
+        image_url: imageUrl,
+        title: data.title,
+        title_ar: data.title_ar || undefined,
+        subtitle: data.subtitle || undefined,
+        subtitle_ar: data.subtitle_ar || undefined,
+        content_html: data.content_html,
+        content_html_ar: data.content_html_ar || undefined,
+        cta_text: data.cta_text || undefined,
+        cta_text_ar: data.cta_text_ar || undefined,
+        cta_link: finalCtaLink || undefined,
+        display_type: data.display_type,
+        start_date: data.start_date ? data.start_date.toISOString() : undefined,
+        end_date: data.end_date ? data.end_date.toISOString() : undefined,
+      };
+
       if (isEditing && bannerId) {
         await updateMutation.mutateAsync({ id: bannerId, payload });
         toast.success(isRTL ? 'تم تحديث البانر' : 'Banner updated');

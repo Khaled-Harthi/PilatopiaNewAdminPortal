@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocale } from 'next-intl';
-import { Loader2, Plus, Trash2, GripVertical } from 'lucide-react';
+import { Loader2, Plus, Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useUploadMedia } from '@/lib/media';
 import type {
   HomeLayoutComponent,
@@ -51,8 +52,18 @@ interface FormData {
   // Styling
   background_color: string;
   // Action
-  action_type: 'none' | 'deep_link' | 'external_url';
+  action_type: 'none' | 'deep_link' | 'external_url' | 'screen';
   action_target: string;
+  action_title: string;
+  // Image list specific
+  show_labels: boolean;
+  layout_item_width: number;
+  layout_item_height: number;
+  layout_spacing: number;
+  layout_border_radius: number;
+  see_all_action_type: 'none' | 'deep_link' | 'external_url' | 'screen';
+  see_all_action_target: string;
+  see_all_action_title: string;
 }
 
 // Local state for image list items (separate from form)
@@ -62,8 +73,9 @@ interface ImageListItemLocal {
   existingUrl: string;
   label_en: string;
   label_ar: string;
-  action_type: 'none' | 'deep_link' | 'external_url';
+  action_type: 'none' | 'deep_link' | 'external_url' | 'screen';
   action_target: string;
+  action_title: string;
 }
 
 interface ConfigureComponentDialogProps {
@@ -131,6 +143,16 @@ export function ConfigureComponentDialog({
       background_color: '#FFFFFF',
       action_type: 'none',
       action_target: '',
+      action_title: '',
+      // Image list defaults
+      show_labels: true,
+      layout_item_width: 120,
+      layout_item_height: 120,
+      layout_spacing: 12,
+      layout_border_radius: 12,
+      see_all_action_type: 'none',
+      see_all_action_target: '',
+      see_all_action_title: '',
     },
   });
 
@@ -138,6 +160,8 @@ export function ConfigureComponentDialog({
   const watchedExistingImageUrl = watch('existing_image_url');
   const watchedActionType = watch('action_type');
   const watchedBackgroundColor = watch('background_color');
+  const watchedShowLabels = watch('show_labels');
+  const watchedSeeAllActionType = watch('see_all_action_type');
 
   useEffect(() => {
     if (component && open) {
@@ -145,10 +169,17 @@ export function ConfigureComponentDialog({
 
       // Reset form fields
       const cardProps = props as DynamicCardProps | null;
+      const listProps = props as DynamicImageListProps | null;
       const actionType = cardProps?.action?.type;
-      const mappedActionType: 'none' | 'deep_link' | 'external_url' =
-        actionType === 'deep_link' || actionType === 'external_url'
+      const mappedActionType: 'none' | 'deep_link' | 'external_url' | 'screen' =
+        actionType === 'deep_link' || actionType === 'external_url' || actionType === 'screen'
           ? actionType
+          : 'none';
+
+      const seeAllActionType = listProps?.seeAllAction?.type;
+      const mappedSeeAllActionType: 'none' | 'deep_link' | 'external_url' | 'screen' =
+        seeAllActionType === 'deep_link' || seeAllActionType === 'external_url' || seeAllActionType === 'screen'
+          ? seeAllActionType
           : 'none';
 
       reset({
@@ -162,11 +193,20 @@ export function ConfigureComponentDialog({
         background_color: cardProps?.backgroundColor || '#FFFFFF',
         action_type: mappedActionType,
         action_target: cardProps?.action?.target || '',
+        action_title: cardProps?.action?.title || '',
+        // Image list specific
+        show_labels: listProps?.showLabels ?? true,
+        layout_item_width: listProps?.layout?.itemWidth ?? 120,
+        layout_item_height: listProps?.layout?.itemHeight ?? 120,
+        layout_spacing: listProps?.layout?.spacing ?? 12,
+        layout_border_radius: listProps?.layout?.borderRadius ?? 12,
+        see_all_action_type: mappedSeeAllActionType,
+        see_all_action_target: listProps?.seeAllAction?.target || '',
+        see_all_action_title: listProps?.seeAllAction?.title || '',
       });
 
       // Reset image list items for dynamic_image_list
       if (component.component_type === 'dynamic_image_list') {
-        const listProps = props as DynamicImageListProps;
         setImageListItems(
           (listProps?.items || []).map((item) => ({
             id: item.id,
@@ -174,10 +214,11 @@ export function ConfigureComponentDialog({
             existingUrl: item.imageUrl,
             label_en: item.label_en,
             label_ar: item.label_ar,
-            action_type: item.action?.type === 'deep_link' || item.action?.type === 'external_url'
+            action_type: item.action?.type === 'deep_link' || item.action?.type === 'external_url' || item.action?.type === 'screen'
               ? item.action.type
               : 'none',
             action_target: item.action?.target || '',
+            action_title: item.action?.title || '',
           }))
         );
       } else {
@@ -195,6 +236,15 @@ export function ConfigureComponentDialog({
         background_color: '#FFFFFF',
         action_type: 'none',
         action_target: '',
+        action_title: '',
+        show_labels: true,
+        layout_item_width: 120,
+        layout_item_height: 120,
+        layout_spacing: 12,
+        layout_border_radius: 12,
+        see_all_action_type: 'none',
+        see_all_action_target: '',
+        see_all_action_title: '',
       });
       setImageListItems([]);
     }
@@ -212,6 +262,7 @@ export function ConfigureComponentDialog({
         label_ar: '',
         action_type: 'none',
         action_target: '',
+        action_title: '',
       },
     ]);
   };
@@ -317,6 +368,7 @@ export function ConfigureComponentDialog({
                   ? {
                       type: item.action_type,
                       target: item.action_target,
+                      title: item.action_title || undefined,
                     }
                   : undefined,
             });
@@ -327,6 +379,21 @@ export function ConfigureComponentDialog({
           title_en: data.title_en,
           title_ar: data.title_ar,
           items: uploadedItems,
+          showLabels: data.show_labels,
+          layout: {
+            itemWidth: data.layout_item_width,
+            itemHeight: data.layout_item_height,
+            spacing: data.layout_spacing,
+            borderRadius: data.layout_border_radius,
+          },
+          seeAllAction:
+            data.see_all_action_type !== 'none'
+              ? {
+                  type: data.see_all_action_type,
+                  target: data.see_all_action_target,
+                  title: data.see_all_action_title || undefined,
+                }
+              : undefined,
         };
         props = imageListProps;
       }
@@ -560,47 +627,169 @@ export function ConfigureComponentDialog({
               </div>
             )}
 
-            {/* Image List (for dynamic_image_list) */}
+            {/* Image List Settings (for dynamic_image_list) */}
             {showImageList && (
-              <div className="space-y-4 pt-4 border-t">
-                <div className="flex items-center justify-between">
+              <>
+                {/* Display Settings */}
+                <div className="space-y-4 pt-4 border-t">
                   <h4 className="text-sm font-medium">
-                    {isRTL ? 'الصور' : 'Images'}
+                    {isRTL ? 'إعدادات العرض' : 'Display Settings'}
                   </h4>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addImageItem}
-                  >
-                    <Plus className="h-4 w-4 me-1" />
-                    {isRTL ? 'إضافة صورة' : 'Add Image'}
-                  </Button>
+
+                  {/* Show Labels Toggle */}
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>{isRTL ? 'إظهار التسميات' : 'Show Labels'}</Label>
+                      <p className="text-xs text-muted-foreground">
+                        {isRTL ? 'عرض نص التسمية أسفل كل صورة' : 'Display label text below each image'}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={watchedShowLabels}
+                      onCheckedChange={(checked) => setValue('show_labels', checked)}
+                    />
+                  </div>
+
+                  {/* Layout Options */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>{isRTL ? 'عرض العنصر' : 'Item Width'}</Label>
+                      <Input
+                        type="number"
+                        {...register('layout_item_width', { valueAsNumber: true })}
+                        min={50}
+                        max={300}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{isRTL ? 'ارتفاع العنصر' : 'Item Height'}</Label>
+                      <Input
+                        type="number"
+                        {...register('layout_item_height', { valueAsNumber: true })}
+                        min={50}
+                        max={300}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{isRTL ? 'التباعد' : 'Spacing'}</Label>
+                      <Input
+                        type="number"
+                        {...register('layout_spacing', { valueAsNumber: true })}
+                        min={0}
+                        max={50}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{isRTL ? 'انحناء الزوايا' : 'Border Radius'}</Label>
+                      <Input
+                        type="number"
+                        {...register('layout_border_radius', { valueAsNumber: true })}
+                        min={0}
+                        max={50}
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {imageListItems.length === 0 ? (
-                  <div className="text-center py-6 border rounded-lg bg-muted/50">
-                    <p className="text-sm text-muted-foreground">
-                      {isRTL
-                        ? 'لم تتم إضافة صور بعد. انقر على "إضافة صورة" للبدء.'
-                        : 'No images added yet. Click "Add Image" to start.'}
-                    </p>
+                {/* See All Action */}
+                <div className="space-y-4 pt-4 border-t">
+                  <h4 className="text-sm font-medium">
+                    {isRTL ? 'رابط "عرض الكل"' : '"See All" Link'}
+                  </h4>
+
+                  <div className="space-y-2">
+                    <Label>{isRTL ? 'نوع الإجراء' : 'Action Type'}</Label>
+                    <Select
+                      value={watchedSeeAllActionType}
+                      onValueChange={(value) =>
+                        setValue('see_all_action_type', value as FormData['see_all_action_type'])
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">
+                          {isRTL ? 'بدون رابط' : 'No link'}
+                        </SelectItem>
+                        <SelectItem value="screen">
+                          {isRTL ? 'شاشة' : 'Screen'}
+                        </SelectItem>
+                        <SelectItem value="deep_link">
+                          {isRTL ? 'رابط داخلي' : 'Deep link'}
+                        </SelectItem>
+                        <SelectItem value="external_url">
+                          {isRTL ? 'رابط خارجي' : 'External URL'}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {imageListItems.map((item, index) => (
-                      <ImageListItemEditor
-                        key={item.id}
-                        item={item}
-                        index={index}
-                        isRTL={isRTL}
-                        onUpdate={(updates) => updateImageItem(item.id, updates)}
-                        onRemove={() => removeImageItem(item.id)}
-                      />
-                    ))}
+
+                  {watchedSeeAllActionType !== 'none' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label>{isRTL ? 'المسار' : 'Target Path'}</Label>
+                        <Input
+                          {...register('see_all_action_target')}
+                          placeholder={
+                            watchedSeeAllActionType === 'external_url'
+                              ? 'https://example.com'
+                              : '/studios'
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>{isRTL ? 'عنوان الشاشة' : 'Screen Title'}</Label>
+                        <Input
+                          {...register('see_all_action_title')}
+                          placeholder={isRTL ? 'جميع الاستوديوهات' : 'All Studios'}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Images Section */}
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium">
+                      {isRTL ? 'الصور' : 'Images'}
+                    </h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addImageItem}
+                    >
+                      <Plus className="h-4 w-4 me-1" />
+                      {isRTL ? 'إضافة صورة' : 'Add Image'}
+                    </Button>
                   </div>
-                )}
-              </div>
+
+                  {imageListItems.length === 0 ? (
+                    <div className="text-center py-6 border rounded-lg bg-muted/50">
+                      <p className="text-sm text-muted-foreground">
+                        {isRTL
+                          ? 'لم تتم إضافة صور بعد. انقر على "إضافة صورة" للبدء.'
+                          : 'No images added yet. Click "Add Image" to start.'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {imageListItems.map((item, index) => (
+                        <ImageListItemEditor
+                          key={item.id}
+                          item={item}
+                          index={index}
+                          isRTL={isRTL}
+                          onUpdate={(updates) => updateImageItem(item.id, updates)}
+                          onRemove={() => removeImageItem(item.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
 
@@ -711,7 +900,7 @@ function ImageListItemEditor({
       {/* Action */}
       <div className="space-y-2">
         <Label>{isRTL ? 'الإجراء عند النقر' : 'Action on Click'}</Label>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="space-y-2">
           <Select
             value={item.action_type}
             onValueChange={(value) =>
@@ -725,6 +914,9 @@ function ImageListItemEditor({
               <SelectItem value="none">
                 {isRTL ? 'بدون إجراء' : 'No action'}
               </SelectItem>
+              <SelectItem value="screen">
+                {isRTL ? 'شاشة' : 'Screen'}
+              </SelectItem>
               <SelectItem value="deep_link">
                 {isRTL ? 'رابط داخلي' : 'Deep link'}
               </SelectItem>
@@ -734,15 +926,24 @@ function ImageListItemEditor({
             </SelectContent>
           </Select>
           {item.action_type !== 'none' && (
-            <Input
-              value={item.action_target}
-              onChange={(e) => onUpdate({ action_target: e.target.value })}
-              placeholder={
-                item.action_type === 'deep_link'
-                  ? '/classes/pilates'
-                  : 'https://example.com'
-              }
-            />
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Input
+                value={item.action_target}
+                onChange={(e) => onUpdate({ action_target: e.target.value })}
+                placeholder={
+                  item.action_type === 'external_url'
+                    ? 'https://example.com'
+                    : '/studio/123'
+                }
+              />
+              {(item.action_type === 'screen') && (
+                <Input
+                  value={item.action_title}
+                  onChange={(e) => onUpdate({ action_title: e.target.value })}
+                  placeholder={isRTL ? 'عنوان الشاشة' : 'Screen Title'}
+                />
+              )}
+            </div>
           )}
         </div>
       </div>

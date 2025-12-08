@@ -45,6 +45,7 @@ export type ActionType = 'deep_link' | 'external_url' | 'modal' | 'screen';
 export interface ComponentAction {
   type: ActionType;
   target: string;
+  title?: string; // For screen/modal actions
 }
 
 // ============================================
