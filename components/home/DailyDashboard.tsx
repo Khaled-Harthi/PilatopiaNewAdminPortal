@@ -114,8 +114,11 @@ export function DailyDashboard() {
             <div className="text-destructive">Failed to load data. Please try again.</div>
           </div>
         ) : !todayQuery.data?.classes?.length ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-muted-foreground">No classes scheduled for this date.</div>
+          <div className="max-w-6xl mx-auto space-y-6">
+            <div className="flex items-center justify-center h-64">
+              <div className="text-muted-foreground">No classes scheduled for this date.</div>
+            </div>
+            <QuickActionsSection />
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
