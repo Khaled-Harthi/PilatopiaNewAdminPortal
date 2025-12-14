@@ -99,7 +99,7 @@ export const TimelineItem = forwardRef<HTMLDivElement, TimelineItemProps>(
             <span className="font-medium text-sm">
               {formatTime(classInfo.schedule_time)}
             </span>
-            <span className="text-sm">{classInfo.name}</span>
+            <span className="text-sm">{classInfo.name || 'Class'}</span>
           </div>
 
           {/* Capacity - dots show fill status visually */}

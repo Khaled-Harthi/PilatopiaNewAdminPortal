@@ -87,7 +87,7 @@ export function TimelineSection({
                 <span className="text-xs text-muted-foreground hidden sm:inline">
                   {completedClasses
                     .slice(0, 2)
-                    .map((c) => c.class.name)
+                    .map((c) => c.class.name || 'Class')
                     .join(' · ')}
                   {completedClasses.length > 2 && ' ...'}
                 </span>

@@ -76,7 +76,7 @@ export function WaitlistClassCard({
               <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
             )}
             <span className="font-medium text-sm">{formattedTime}</span>
-            <span className="text-sm truncate">{classInfo.name}</span>
+            <span className="text-sm truncate">{classInfo.name || 'Class'}</span>
           </div>
           <span className="text-xs text-muted-foreground font-medium shrink-0">
             {waitlist.length} waiting
@@ -102,7 +102,7 @@ export function WaitlistClassCard({
               key={member.member_id}
               member={member}
               position={index + 1}
-              className={classInfo.name}
+              className={classInfo.name || 'Class'}
               classTime={formattedTime}
               classRoomName={classInfo.class_room_name}
               date={date}

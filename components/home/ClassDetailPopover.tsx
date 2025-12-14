@@ -97,7 +97,7 @@ function ClassDetailContent({
           color="hsl(0, 0%, 30%)"
         />
         <p className="text-sm">
-          <span className="font-medium">{classInfo.name}</span>
+          <span className="font-medium">{classInfo.name || 'Class'}</span>
           {' '}with {classInfo.instructor}
           {' '}in {classInfo.class_room_name}
           {' '}for {classInfo.duration_minutes} min

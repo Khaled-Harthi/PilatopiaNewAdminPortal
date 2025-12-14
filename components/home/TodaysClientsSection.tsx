@@ -61,7 +61,7 @@ export function TodaysClientsSection({ classes }: TodaysClientsSectionProps) {
           userName: booking.user_name,
           phoneNumber: booking.phone_number,
           classTime: classDetail.class.schedule_time,
-          className: classDetail.class.name,
+          className: classDetail.class.name || 'Class',
           isCheckedIn: booking.attendance_id !== null,
           isPastGracePeriod,
         });

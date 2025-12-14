@@ -107,7 +107,7 @@ export function TimelineClassRow({ classDetail, status }: TimelineClassRowProps)
           {/* Class Info */}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium">{classInfo.name}</span>
+              <span className="font-medium">{classInfo.name || 'Class'}</span>
               {status === 'completed' && (
                 <Check className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               )}
