@@ -74,7 +74,7 @@ export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
       const result = await createMember.mutateAsync({
         name: name.trim(),
         phoneNumber: formattedPhone,
-        birthDate: birthDate || undefined,
+        birthDate: birthDate || null,
       });
 
       toast.success('Member created successfully');
@@ -102,7 +102,7 @@ export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
         </ResponsiveDialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 px-4 sm:px-0">
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Name *</Label>
