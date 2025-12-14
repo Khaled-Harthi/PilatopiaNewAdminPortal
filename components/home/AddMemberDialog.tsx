@@ -74,7 +74,7 @@ export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
       const result = await createMember.mutateAsync({
         name: name.trim(),
         phoneNumber: formattedPhone,
-        birthDate: birthDate || null,
+        birthDate: birthDate || undefined,
       });
 
       toast.success('Member created successfully');
