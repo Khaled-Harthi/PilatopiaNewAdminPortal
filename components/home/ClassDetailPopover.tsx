@@ -256,7 +256,7 @@ export function ClassDetailPopover({
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetTrigger asChild>{children}</SheetTrigger>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto p-0 rounded-t-xl">
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto p-0 rounded-t-xl [&>button.absolute]:hidden">
           <ClassDetailContent
             classDetail={classDetail}
             onClose={() => onOpenChange(false)}
