@@ -139,7 +139,7 @@ export function InstructorsContent() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src={instructor.photo_url || undefined} />
+                        <AvatarImage src={instructor.avatar_url || undefined} />
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>

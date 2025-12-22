@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
 import type { Instructor, InstructorCreate } from '@/lib/settings/types';
 
@@ -28,12 +27,9 @@ interface InstructorDialogProps {
 }
 
 interface FormData {
-  name_en: string;
-  name_ar: string;
-  bio_en: string;
-  bio_ar: string;
-  photo_url: string;
-  is_active: boolean;
+  name: string;
+  bio: string;
+  avatar_url: string;
 }
 
 export function InstructorDialog({
@@ -51,41 +47,28 @@ export function InstructorDialog({
     register,
     handleSubmit,
     reset,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      name_en: '',
-      name_ar: '',
-      bio_en: '',
-      bio_ar: '',
-      photo_url: '',
-      is_active: true,
+      name: '',
+      bio: '',
+      avatar_url: '',
     },
   });
-
-  const isActive = watch('is_active');
 
   useEffect(() => {
     if (open) {
       if (instructor) {
         reset({
-          name_en: instructor.name,
-          name_ar: instructor.name,
-          bio_en: instructor.bio || '',
-          bio_ar: instructor.bio || '',
-          photo_url: instructor.photo_url || '',
-          is_active: instructor.is_active,
+          name: instructor.name,
+          bio: instructor.bio || '',
+          avatar_url: instructor.avatar_url || '',
         });
       } else {
         reset({
-          name_en: '',
-          name_ar: '',
-          bio_en: '',
-          bio_ar: '',
-          photo_url: '',
-          is_active: true,
+          name: '',
+          bio: '',
+          avatar_url: '',
         });
       }
     }
@@ -93,12 +76,9 @@ export function InstructorDialog({
 
   const handleFormSubmit = (data: FormData) => {
     onSubmit({
-      name_en: data.name_en,
-      name_ar: data.name_ar,
-      bio_en: data.bio_en || null,
-      bio_ar: data.bio_ar || null,
-      photo_url: data.photo_url || null,
-      is_active: data.is_active,
+      name: data.name,
+      bio: data.bio || undefined,
+      avatar_url: data.avatar_url || undefined,
     });
   };
 
@@ -118,99 +98,53 @@ export function InstructorDialog({
             </ResponsiveDialogTitle>
             <ResponsiveDialogDescription>
               {isRTL
-                ? 'أدخل بيانات المدرب باللغتين'
-                : 'Enter instructor details in both languages'}
+                ? 'أدخل بيانات المدرب'
+                : 'Enter instructor details'}
             </ResponsiveDialogDescription>
           </ResponsiveDialogHeader>
 
           <div className="space-y-4 py-4">
-            {/* Name English */}
+            {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name_en">
-                {isRTL ? 'الاسم (إنجليزي)' : 'Name (English)'}
-              </Label>
+              <Label htmlFor="name">{isRTL ? 'الاسم' : 'Name'}</Label>
               <Input
-                id="name_en"
-                dir="ltr"
-                placeholder="e.g., Sarah Johnson"
-                {...register('name_en', { required: true })}
-                className={errors.name_en ? 'border-destructive' : ''}
+                id="name"
+                placeholder={isRTL ? 'مثال: سارة جونسون' : 'e.g., Sarah Johnson'}
+                {...register('name', { required: true })}
+                className={errors.name ? 'border-destructive' : ''}
               />
             </div>
 
-            {/* Name Arabic */}
+            {/* Avatar URL */}
             <div className="space-y-2">
-              <Label htmlFor="name_ar">
-                {isRTL ? 'الاسم (عربي)' : 'Name (Arabic)'}
-              </Label>
-              <Input
-                id="name_ar"
-                dir="rtl"
-                placeholder="مثال: سارة جونسون"
-                {...register('name_ar', { required: true })}
-                className={errors.name_ar ? 'border-destructive' : ''}
-              />
-            </div>
-
-            {/* Photo URL */}
-            <div className="space-y-2">
-              <Label htmlFor="photo_url">
-                {isRTL ? 'رابط الصورة' : 'Photo URL'}{' '}
+              <Label htmlFor="avatar_url">
+                {isRTL ? 'رابط الصورة' : 'Avatar URL'}{' '}
                 <span className="text-muted-foreground text-xs">
                   ({isRTL ? 'اختياري' : 'optional'})
                 </span>
               </Label>
               <Input
-                id="photo_url"
+                id="avatar_url"
                 dir="ltr"
                 type="url"
                 placeholder="https://..."
-                {...register('photo_url')}
+                {...register('avatar_url')}
               />
             </div>
 
-            {/* Bio English */}
+            {/* Bio */}
             <div className="space-y-2">
-              <Label htmlFor="bio_en">
-                {isRTL ? 'النبذة (إنجليزي)' : 'Bio (English)'}
+              <Label htmlFor="bio">
+                {isRTL ? 'النبذة' : 'Bio'}{' '}
+                <span className="text-muted-foreground text-xs">
+                  ({isRTL ? 'اختياري' : 'optional'})
+                </span>
               </Label>
               <Textarea
-                id="bio_en"
-                dir="ltr"
-                placeholder="Brief bio..."
-                rows={2}
-                {...register('bio_en')}
-              />
-            </div>
-
-            {/* Bio Arabic */}
-            <div className="space-y-2">
-              <Label htmlFor="bio_ar">
-                {isRTL ? 'النبذة (عربي)' : 'Bio (Arabic)'}
-              </Label>
-              <Textarea
-                id="bio_ar"
-                dir="rtl"
-                placeholder="نبذة مختصرة..."
-                rows={2}
-                {...register('bio_ar')}
-              />
-            </div>
-
-            {/* Active Status */}
-            <div className="flex items-center justify-between rounded-lg border p-3">
-              <div className="space-y-0.5">
-                <Label htmlFor="is_active">{isRTL ? 'نشط' : 'Active'}</Label>
-                <p className="text-sm text-muted-foreground">
-                  {isRTL
-                    ? 'يظهر في قائمة المدربين'
-                    : 'Visible in instructor selection'}
-                </p>
-              </div>
-              <Switch
-                id="is_active"
-                checked={isActive}
-                onCheckedChange={(checked) => setValue('is_active', checked)}
+                id="bio"
+                placeholder={isRTL ? 'نبذة مختصرة...' : 'Brief bio...'}
+                rows={3}
+                {...register('bio')}
               />
             </div>
           </div>

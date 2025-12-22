@@ -85,19 +85,16 @@ export interface Instructor {
   id: string;
   name: string;
   bio: string | null;
-  photo_url: string | null;
+  avatar_url: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 }
 
 export interface InstructorCreate {
-  name_en: string;
-  name_ar: string;
-  bio_en?: string | null;
-  bio_ar?: string | null;
-  photo_url?: string | null;
-  is_active?: boolean;
+  name: string;
+  bio?: string;
+  avatar_url?: string;
 }
 
 export interface InstructorUpdate extends Partial<InstructorCreate> {}
