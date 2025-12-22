@@ -72,6 +72,14 @@ export interface MemberProfile extends Member {
 
 export type MembershipState = 'active' | 'upcoming' | 'expiring' | 'expired';
 
+export interface MembershipInvoice {
+  id: number;
+  invoiceNo: string;
+  url: string;
+  pdfUrl: string;
+  status: string;
+}
+
 export interface Membership {
   id: string;
   plan_name: string;
@@ -83,6 +91,7 @@ export interface Membership {
   remaining_classes: number;
   state: MembershipState;
   created_at: string;
+  invoice: MembershipInvoice | null;
 }
 
 export interface MembershipsResponse {

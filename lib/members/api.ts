@@ -98,6 +98,15 @@ export async function fetchMemberActivity(memberId: string): Promise<MemberActiv
 // Member Memberships API
 // ============================================
 
+// Raw invoice from API
+interface RawInvoice {
+  id: number;
+  invoiceNo: string;
+  url: string;
+  pdfUrl: string;
+  status: string;
+}
+
 // Raw membership response from API
 interface RawMembership {
   id: number;
@@ -111,6 +120,7 @@ interface RawMembership {
   expiresAt: string;
   status: string;
   createdAt: string;
+  invoice: RawInvoice | null;
 }
 
 /**
@@ -164,6 +174,7 @@ export async function fetchMemberMemberships(memberId: string): Promise<Membersh
     remaining_classes: m.remainingBalance,
     state: getMembershipState(m),
     created_at: m.createdAt,
+    invoice: m.invoice,
   }));
 
   // Sort by created_at descending

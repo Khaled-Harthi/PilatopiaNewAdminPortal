@@ -1,6 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, Download } from 'lucide-react';
 import type { Membership, MembershipState } from '@/lib/members/types';
 import { format, parseISO } from 'date-fns';
 
@@ -65,9 +67,35 @@ export function TransactionsHistory({ current, past }: TransactionsHistoryProps)
                   {stateLabel}
                 </span>
               </div>
-              <span className="text-muted-foreground text-xs">
-                {membership.remaining_classes}/{membership.class_count} classes
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-xs">
+                  {membership.remaining_classes}/{membership.class_count} classes
+                </span>
+                {membership.invoice && (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      asChild
+                      title="View Invoice"
+                    >
+                      <a href={membership.invoice.url} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      asChild
+                      title="Download Invoice"
+                    >
+                      <a href={membership.invoice.pdfUrl} target="_blank" rel="noopener noreferrer">
+                        <Download className="h-3.5 w-3.5" />
+                      </a>
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
