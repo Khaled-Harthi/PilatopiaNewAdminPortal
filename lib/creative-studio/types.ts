@@ -73,7 +73,7 @@ export interface Generation {
   completedAt: string | null;
 }
 
-export interface GenerationStatus {
+export interface GenerationStatusResponse {
   id: number;
   status: GenerationStatus;
   errorMessage: string | null;
