@@ -93,6 +93,24 @@ function GenerationCard({ generation, onRefetch }: { generation: Generation; onR
               className="w-full h-full object-cover cursor-pointer"
               onClick={() => setShowPreview(true)}
             />
+          ) : generation.sourceImageUrl ? (
+            <>
+              <img
+                src={generation.sourceImageUrl}
+                alt="Source"
+                className="w-full h-full object-cover"
+              />
+              {(currentStatus === 'processing' || currentStatus === 'pending') && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <div className="text-center text-white">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+                    <p className="text-xs mt-2">
+                      {currentStatus === 'processing' ? 'Generating...' : 'Queued'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               {currentStatus === 'processing' || currentStatus === 'pending' ? (
