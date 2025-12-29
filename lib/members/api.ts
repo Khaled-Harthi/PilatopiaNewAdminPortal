@@ -429,3 +429,17 @@ export async function renewMembership(
   );
   return response.data;
 }
+
+// ============================================
+// Invoice API
+// ============================================
+
+/**
+ * Regenerates a failed invoice
+ */
+export async function regenerateInvoice(
+  invoiceId: number
+): Promise<{ success: boolean; invoice: RawInvoice }> {
+  const response = await apiClient.post(`/admin/payments/invoices/${invoiceId}/regenerate`);
+  return response.data;
+}

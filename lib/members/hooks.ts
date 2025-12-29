@@ -19,6 +19,7 @@ import {
   purchaseMembership,
   renewMembership,
   lookupMemberByPhone,
+  regenerateInvoice,
 } from './api';
 import type {
   MemberQueryParams,
@@ -294,6 +295,25 @@ export function useRenewMembership() {
       queryClient.invalidateQueries({ queryKey: ['member-profile', memberId] });
       queryClient.invalidateQueries({ queryKey: ['members'] });
       queryClient.invalidateQueries({ queryKey: ['member-stats'] });
+    },
+  });
+}
+
+// ============================================
+// Invoice Hooks
+// ============================================
+
+/**
+ * Hook to regenerate a failed invoice
+ */
+export function useRegenerateInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ invoiceId, memberId }: { invoiceId: number; memberId: string }) =>
+      regenerateInvoice(invoiceId),
+    onSuccess: (_, { memberId }) => {
+      queryClient.invalidateQueries({ queryKey: ['member-memberships', memberId] });
     },
   });
 }

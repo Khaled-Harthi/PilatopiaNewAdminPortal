@@ -2,12 +2,16 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Download } from 'lucide-react';
+import { ExternalLink, Download, RotateCw, Loader2 } from 'lucide-react';
 import type { Membership, MembershipState } from '@/lib/members/types';
+import { useRegenerateInvoice } from '@/lib/members/hooks';
 import { format, parseISO } from 'date-fns';
+import { toast } from 'sonner';
 
 interface TransactionsHistoryProps {
+  memberId: string;
   current: Membership[];
+  upcoming: Membership[];
   past: Membership[];
 }
 
@@ -34,14 +38,37 @@ function getStateBadge(state: MembershipState): { label: string; className: stri
   }
 }
 
-export function TransactionsHistory({ current, past }: TransactionsHistoryProps) {
-  // Combine current and past memberships
+export function TransactionsHistory({ memberId, current, upcoming, past }: TransactionsHistoryProps) {
+  const regenerateInvoice = useRegenerateInvoice();
+
+  // Combine current, upcoming, and past memberships
   const allMemberships = [
+    ...upcoming,
     ...current,
     ...past,
   ].sort((a, b) =>
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
+
+  const handleRegenerateInvoice = (invoiceId: number) => {
+    regenerateInvoice.mutate(
+      { invoiceId, memberId },
+      {
+        onSuccess: () => {
+          toast.success('Invoice regenerated successfully');
+        },
+        onError: () => {
+          toast.error('Failed to regenerate invoice');
+        },
+      }
+    );
+  };
+
+  // Check if invoice is in a failed state
+  const isInvoiceFailed = (status: string) => {
+    const failedStatuses = ['failed', 'error', 'cancelled'];
+    return failedStatuses.includes(status.toLowerCase());
+  };
 
   if (allMemberships.length === 0) {
     return (
@@ -53,6 +80,10 @@ export function TransactionsHistory({ current, past }: TransactionsHistoryProps)
     <div className="space-y-3 md:space-y-0">
       {allMemberships.slice(0, 5).map((membership) => {
         const { label: stateLabel, className: stateBadgeClass } = getStateBadge(membership.state);
+        const invoiceFailed = membership.invoice && isInvoiceFailed(membership.invoice.status);
+        const isRegenerating = regenerateInvoice.isPending &&
+          regenerateInvoice.variables?.invoiceId === membership.invoice?.id;
+
         return (
           <div key={membership.id} className="text-sm md:flex md:items-center md:justify-between md:py-2">
             {/* Date - separate line on mobile, inline on desktop */}
@@ -73,26 +104,44 @@ export function TransactionsHistory({ current, past }: TransactionsHistoryProps)
                 </span>
                 {membership.invoice && (
                   <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      asChild
-                      title="View Invoice"
-                    >
-                      <a href={membership.invoice.url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      asChild
-                      title="Download Invoice"
-                    >
-                      <a href={membership.invoice.pdfUrl} target="_blank" rel="noopener noreferrer">
-                        <Download className="h-3.5 w-3.5" />
-                      </a>
-                    </Button>
+                    {invoiceFailed ? (
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        title="Retry Invoice Generation"
+                        onClick={() => handleRegenerateInvoice(membership.invoice!.id)}
+                        disabled={isRegenerating}
+                      >
+                        {isRegenerating ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <RotateCw className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          asChild
+                          title="View Invoice"
+                        >
+                          <a href={membership.invoice.url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          asChild
+                          title="Download Invoice"
+                        >
+                          <a href={membership.invoice.pdfUrl} target="_blank" rel="noopener noreferrer">
+                            <Download className="h-3.5 w-3.5" />
+                          </a>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>

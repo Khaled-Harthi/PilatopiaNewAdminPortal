@@ -202,7 +202,9 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
           <div className="border rounded-lg p-3 md:p-4">
             <h3 className="text-sm font-semibold mb-3">Memberships</h3>
             <TransactionsHistory
+              memberId={id}
               current={currentMemberships}
+              upcoming={membershipsData?.upcoming ?? []}
               past={membershipsData?.past ?? []}
             />
           </div>
