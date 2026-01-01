@@ -43,7 +43,7 @@ import {
   useClassRooms,
   useUpdateClass,
 } from '@/lib/schedule/hooks';
-import { getUtcPlus3Components, getLocalDateString } from '@/lib/schedule/time-utils';
+import { getUtcPlus3Components, getLocalDateString, toUTC } from '@/lib/schedule/time-utils';
 import { cn } from '@/lib/utils';
 import type { PilatesClass } from '@/lib/schedule/types';
 
@@ -194,12 +194,13 @@ export function ClassDetailSheet({
     if (!classData) return;
 
     try {
-      // Use timezone-aware utility to get the date in UTC+3
+      // Use timezone-aware utility to get the date in UTC+3 (Saudi local time)
       const dateStr = getLocalDateString(classData.schedule_time);
 
-      // Send local time directly (database column is 'timestamp without time zone')
-      // The database stores times in Saudi local time (UTC+3) without timezone info
-      const scheduleTime = `${dateStr}T${values.time}:00`; // No Z suffix - local time
+      // Convert Saudi local time to UTC for storage
+      // Database stores UTC, frontend adds +3h on read to display Saudi time
+      const utcResult = toUTC(values.time, dateStr);
+      const scheduleTime = `${utcResult.date}T${utcResult.time}:00`; // UTC time, no Z suffix
 
       await updateClass.mutateAsync({
         classId: classData.id,
