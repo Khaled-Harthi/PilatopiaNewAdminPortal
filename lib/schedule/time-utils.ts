@@ -1,7 +1,68 @@
 /**
  * Time conversion utilities for Schedule Management
  * Local time is UTC+3 (Saudi Arabia timezone)
+ *
+ * IMPORTANT: All functions in this file handle timezone conversion explicitly.
+ * Never use JavaScript's getHours(), getDate(), etc. directly on schedule times
+ * as they return values in the browser's timezone, not UTC+3.
  */
+
+const SAUDI_OFFSET_HOURS = 3; // UTC+3
+const SAUDI_OFFSET_MS = SAUDI_OFFSET_HOURS * 60 * 60 * 1000;
+
+/**
+ * Converts a UTC datetime to UTC+3 components
+ * This is the core utility - all other functions should use this
+ */
+export function getUtcPlus3Components(utcDatetime: string): {
+  year: number;
+  month: number; // 0-indexed
+  date: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+} {
+  const utcDate = new Date(utcDatetime);
+  const utcPlus3Ms = utcDate.getTime() + SAUDI_OFFSET_MS;
+  // Use UTC methods on the shifted date to get the "local" components
+  const shifted = new Date(utcPlus3Ms);
+  return {
+    year: shifted.getUTCFullYear(),
+    month: shifted.getUTCMonth(),
+    date: shifted.getUTCDate(),
+    hours: shifted.getUTCHours(),
+    minutes: shifted.getUTCMinutes(),
+    seconds: shifted.getUTCSeconds(),
+  };
+}
+
+/**
+ * Gets the hour (0-23) in UTC+3 from a UTC datetime string
+ * Use this instead of new Date(utcDatetime).getHours()
+ */
+export function getLocalHour(utcDatetime: string): number {
+  return getUtcPlus3Components(utcDatetime).hours;
+}
+
+/**
+ * Gets the date string (YYYY-MM-DD) in UTC+3 from a UTC datetime string
+ * Use this instead of format(new Date(utcDatetime), 'yyyy-MM-dd')
+ */
+export function getLocalDateString(utcDatetime: string): string {
+  const { year, month, date } = getUtcPlus3Components(utcDatetime);
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+}
+
+/**
+ * Checks if a UTC datetime falls on the same day as a given date in UTC+3
+ * @param utcDatetime - UTC datetime string from database
+ * @param compareDate - Date object to compare (typically from weekDates array)
+ */
+export function isSameLocalDay(utcDatetime: string, compareDate: Date): boolean {
+  const localDateStr = getLocalDateString(utcDatetime);
+  const compareDateStr = `${compareDate.getFullYear()}-${String(compareDate.getMonth() + 1).padStart(2, '0')}-${String(compareDate.getDate()).padStart(2, '0')}`;
+  return localDateStr === compareDateStr;
+}
 
 /**
  * Converts local time (UTC+3) to UTC for API requests

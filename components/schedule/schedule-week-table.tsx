@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
-import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay } from 'date-fns';
+import { format, startOfWeek, addDays, addWeeks, subWeeks } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScheduleCell } from './schedule-cell';
+import { getLocalHour, isSameLocalDay } from '@/lib/schedule/time-utils';
 import type { PilatesClass } from '@/lib/schedule/types';
 
 interface ScheduleWeekTableProps {
@@ -41,11 +42,11 @@ export function ScheduleWeekTable({
     const map = new Map<string, PilatesClass[]>();
 
     classes.forEach((cls) => {
-      const date = new Date(cls.schedule_time);
-      const hour = date.getHours();
+      // Use timezone-aware utilities to get hour and match days
+      const hour = getLocalHour(cls.schedule_time);
 
       weekDates.forEach((weekDate, dayIndex) => {
-        if (isSameDay(date, weekDate)) {
+        if (isSameLocalDay(cls.schedule_time, weekDate)) {
           const key = `${dayIndex}-${hour}`;
           const existing = map.get(key) || [];
           map.set(key, [...existing, cls]);

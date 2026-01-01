@@ -43,7 +43,7 @@ import {
   useClassRooms,
   useUpdateClass,
 } from '@/lib/schedule/hooks';
-import { toUTC, toLocalDate } from '@/lib/schedule/time-utils';
+import { getUtcPlus3Components, getLocalDateString } from '@/lib/schedule/time-utils';
 import { cn } from '@/lib/utils';
 import type { PilatesClass } from '@/lib/schedule/types';
 
@@ -55,6 +55,7 @@ const editFormSchema = z.object({
   time: z.string().min(1, 'Required'),
   capacity: z.number().min(1, 'Must be at least 1'),
   durationMinutes: z.number().min(15, 'Must be at least 15 minutes'),
+  fakeBookedSeats: z.union([z.number().min(0, 'Must be 0 or more'), z.literal('')]).optional().nullable(),
 });
 
 type EditFormValues = z.infer<typeof editFormSchema>;
@@ -119,6 +120,7 @@ export function ClassDetailSheet({
       time: '09:00',
       capacity: 6,
       durationMinutes: 50,
+      fakeBookedSeats: undefined,
     },
   });
 
@@ -132,9 +134,8 @@ export function ClassDetailSheet({
   // Function to enter edit mode and populate form
   const handleEnterEditMode = () => {
     if (classData) {
-      const localDate = toLocalDate(classData.schedule_time);
-      const hours = localDate.getHours();
-      const minutes = localDate.getMinutes();
+      // Use timezone-aware utilities to get the correct local time
+      const { hours, minutes } = getUtcPlus3Components(classData.schedule_time);
       // Snap to nearest 30-minute interval for time select
       const snappedMinutes = minutes < 15 ? 0 : minutes < 45 ? 30 : 0;
       const snappedHours = minutes >= 45 ? hours + 1 : hours;
@@ -147,6 +148,7 @@ export function ClassDetailSheet({
         time: timeValue,
         capacity: classData.capacity,
         durationMinutes: classData.duration_minutes,
+        fakeBookedSeats: classData.fake_booked_seats ?? undefined,
       });
       setIsEditing(true);
     }
@@ -192,10 +194,12 @@ export function ClassDetailSheet({
     if (!classData) return;
 
     try {
-      // Convert local time (UTC+3) to UTC for the API
-      const dateStr = format(scheduleDate, 'yyyy-MM-dd');
-      const utcResult = toUTC(values.time, dateStr);
-      const scheduleTime = `${utcResult.date}T${utcResult.time}:00`;
+      // Use timezone-aware utility to get the date in UTC+3
+      const dateStr = getLocalDateString(classData.schedule_time);
+
+      // Send local time directly (database column is 'timestamp without time zone')
+      // The database stores times in Saudi local time (UTC+3) without timezone info
+      const scheduleTime = `${dateStr}T${values.time}:00`; // No Z suffix - local time
 
       await updateClass.mutateAsync({
         classId: classData.id,
@@ -206,6 +210,9 @@ export function ClassDetailSheet({
           scheduleTime: scheduleTime,
           capacity: values.capacity,
           durationMinutes: values.durationMinutes,
+          ...(values.fakeBookedSeats !== undefined && values.fakeBookedSeats !== ''
+            ? { fakeBookedSeats: values.fakeBookedSeats as number }
+            : {}),
         },
       });
 
@@ -439,6 +446,45 @@ export function ClassDetailSheet({
                           </FormControl>
                           <span className="text-sm text-muted-foreground">
                             {locale === 'ar' ? 'مقاعد' : 'spots'}
+                          </span>
+                        </div>
+                        <FormMessage className="text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Fake Booked Seats - Advanced Option */}
+                <div className="flex items-center gap-2 pt-2 border-t border-dashed">
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {locale === 'ar' ? 'عرض المقاعد' : 'Display seats'}
+                  </span>
+                  <FormField
+                    control={form.control}
+                    name="fakeBookedSeats"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <FormControl>
+                            <Input
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              placeholder={locale === 'ar' ? 'تلقائي' : 'Auto'}
+                              className="h-8 text-xs w-16 text-center"
+                              value={field.value === undefined || field.value === null || field.value === '' ? '' : String(field.value)}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9]/g, '');
+                                if (val === '') {
+                                  field.onChange(undefined);
+                                } else {
+                                  field.onChange(Number(val));
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <span className="text-xs text-muted-foreground">
+                            {locale === 'ar' ? '(يظهر للمستخدم)' : '(shown to user)'}
                           </span>
                         </div>
                         <FormMessage className="text-xs" />
