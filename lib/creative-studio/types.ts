@@ -2,9 +2,71 @@
  * Creative Studio Types
  */
 
-export type GenerationMode = 'style_image' | 'generate_new';
+// Canvas types
+export type ApprovalStatus = 'liked' | 'disliked' | null;
+export type StylePreset = 'natural' | 'studio' | 'golden_hour' | 'dramatic';
+
+export interface Canvas {
+  id: number;
+  name: string;
+  thumbnailUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface CanvasNode {
+  id: number;
+  canvasId: number;
+  positionX: number;
+  positionY: number;
+  width: number; // Default: 240
+  approvalStatus: ApprovalStatus;
+  versionLabel: string; // e.g., "v1", "v2.1", "v2.1.1"
+  generation: Generation;
+}
+
+export interface CanvasCreatePayload {
+  name?: string;
+}
+
+export interface CanvasUpdatePayload {
+  name?: string;
+  positionUpdates?: Array<{
+    generationId: number;
+    positionX: number;
+    positionY: number;
+  }>;
+}
+
+// Style preset mappings
+export const STYLE_PRESET_CONFIG: Record<StylePreset, Partial<StyleOptions>> = {
+  natural: {
+    lighting: 'natural',
+    colorMood: 'earthy',
+    desaturation: 'subtle',
+  },
+  studio: {
+    lighting: 'diffused',
+    colorMood: 'muted',
+    desaturation: 'moderate',
+  },
+  golden_hour: {
+    lighting: 'golden_hour',
+    colorMood: 'warm',
+    desaturation: 'subtle',
+  },
+  dramatic: {
+    lighting: 'soft_dawn',
+    colorMood: 'muted',
+    desaturation: 'strong',
+  },
+};
+
+export type GenerationMode = 'style_image' | 'generate_new' | 'quick_comment';
 export type GenerationStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
 export type Resolution = '1K' | '2K' | '4K';
+export type TaskStatus = 'todo' | 'in_progress' | 'review' | 'done';
 
 export type WallColor = 'warm_cream' | 'beige' | 'taupe' | 'keep_original';
 export type ColorMood = 'earthy' | 'warm' | 'muted';
@@ -71,6 +133,15 @@ export interface Generation {
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
+  // Kanban fields
+  title: string | null;
+  taskStatus: TaskStatus;
+  parentGenerationId: number | null;
+  versionNumber: number;
+  isCurrentVersion: boolean;
+  branchedFromGenerationId: number | null;
+  reviewComment: string | null;
+  columnOrder: number;
 }
 
 export interface GenerationStatusResponse {
@@ -92,6 +163,110 @@ export interface GenerationCreatePayload {
   mode: GenerationMode;
   promptConfig: PromptConfig;
   resolution?: Resolution;
+  title?: string;
+  startImmediately?: boolean;
+}
+
+// Kanban grouped response
+export interface GroupedGenerations {
+  todo: Generation[];
+  in_progress: Generation[];
+  review: Generation[];
+  done: Generation[];
+}
+
+export interface GroupedGenerationsResponse {
+  data: GroupedGenerations;
+  counts: {
+    todo: number;
+    in_progress: number;
+    review: number;
+    done: number;
+    total: number;
+  };
+}
+
+// Comments
+export type CommentType = 'review' | 'enhancement' | 'note';
+
+export interface GenerationComment {
+  id: number;
+  generationId: number;
+  commentText: string;
+  commentType: CommentType;
+  triggersRegeneration: boolean;
+  resultingGenerationId: number | null;
+  createdBy: number;
+  createdAt: string;
+}
+
+// Version history
+export interface VersionHistoryItem {
+  id: number;
+  versionNumber: number;
+  status: GenerationStatus;
+  taskStatus: TaskStatus;
+  resultImageUrl: string | null;
+  resultThumbnailUrl: string | null;
+  createdAt: string;
+  completedAt: string | null;
+  reviewComment: string | null;
+}
+
+export interface VersionHistoryResponse {
+  current: Generation;
+  versions: VersionHistoryItem[];
+  branchHistory: BranchHistoryItem[] | null;
+}
+
+export interface BranchHistoryItem {
+  id: number;
+  title: string | null;
+  versionNumber: number;
+  resultThumbnailUrl: string | null;
+}
+
+// Branch info
+export interface BranchInfo {
+  id: number;
+  title: string | null;
+  taskStatus: TaskStatus;
+  versionNumber: number;
+  resultThumbnailUrl: string | null;
+  createdAt: string;
+}
+
+// Enhancement payload
+export interface EnhancePayload {
+  comment: string;
+  promptConfigOverrides?: Partial<PromptConfig>;
+  resolution?: Resolution;
+}
+
+// Discard and regenerate payload
+export interface DiscardRegeneratePayload {
+  promptConfig: PromptConfig;
+  resolution?: Resolution;
+}
+
+// Branch payload
+export interface BranchPayload {
+  title?: string;
+  startImmediately?: boolean;
+}
+
+// Reorder payload
+export interface ReorderPayload {
+  updates: Array<{
+    id: number;
+    taskStatus: TaskStatus;
+    columnOrder: number;
+  }>;
+}
+
+// Task status update payload
+export interface UpdateTaskStatusPayload {
+  taskStatus: TaskStatus;
 }
 
 export interface GenerationCreateResponse {

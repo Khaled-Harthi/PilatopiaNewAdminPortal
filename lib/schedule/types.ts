@@ -15,6 +15,7 @@ export interface PilatesClass {
   booked_seats: number;
   class_room_name: string;
   class_room_id?: number;
+  fake_booked_seats?: number | null; // Override for display booking count
 }
 
 export interface ClassesResponse {
@@ -91,6 +92,7 @@ export interface UpdateClassPayload {
   capacity: number;
   durationMinutes: number;
   classRoomId?: number;
+  fakeBookedSeats?: number | null; // Override for display booking count
 }
 
 // For react-big-calendar
