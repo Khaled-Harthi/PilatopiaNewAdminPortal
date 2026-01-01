@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { HomePage } from '@/components/creative-studio/home/home-page';
@@ -18,7 +18,7 @@ import {
 } from '@/lib/creative-studio/hooks';
 import type { Generation, ApprovalStatus, CanvasNode } from '@/lib/creative-studio/types';
 
-export default function CreativeStudioPage() {
+function CreativeStudioContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -276,5 +276,18 @@ export default function CreativeStudioPage() {
         onCreateCanvas={handleCreateCanvas}
       />
     </div>
+  );
+}
+
+// Wrapper component with Suspense for useSearchParams
+export default function CreativeStudioPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen bg-stone-900 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-stone-400" />
+      </div>
+    }>
+      <CreativeStudioContent />
+    </Suspense>
   );
 }
