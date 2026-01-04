@@ -324,7 +324,8 @@ Brief description of what needs to be built.
 library/API documentation. This means you should automatically use the Context7 MCP
 tools to resolve library id and get library docs without me having to explicitly ask.
 2. ALWAYS use playwright to test your implementation.
-3. Before marking any task as done, Claude must:
+3. ALWAYS run `npm run build` locally and verify it succeeds before pushing to production.
+4. Before marking any task as done, Claude must:
     1. ✅ Verify code compiles without errors
     2. ✅ Check TypeScript types are correct
     3. ✅ Test in development environment, use playwright

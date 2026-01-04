@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { ArrowLeft, ChevronLeft, ChevronRight, Phone, ExternalLink } from 'lucide-react';
@@ -26,7 +26,43 @@ const FILTERS: { value: MemberFilter; label: string; labelAr: string }[] = [
   { value: 'churned', label: 'Churned', labelAr: 'غادروا' },
 ];
 
+// Loading fallback for Suspense
+function MembersPageSkeleton() {
+  return (
+    <DashboardLayout>
+      <div className="space-y-6 pb-8">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-10" />
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-24 mt-1" />
+          </div>
+        </div>
+        <Skeleton className="h-10 w-96" />
+        <Card className="overflow-hidden">
+          <div className="divide-y">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="flex items-center gap-4 px-4 py-3">
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </DashboardLayout>
+  );
+}
+
+// Main page component wrapped in Suspense
 export default function BusinessMembersPage() {
+  return (
+    <Suspense fallback={<MembersPageSkeleton />}>
+      <BusinessMembersContent />
+    </Suspense>
+  );
+}
+
+function BusinessMembersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale();
