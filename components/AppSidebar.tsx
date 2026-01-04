@@ -38,6 +38,11 @@ export function AppSidebar({ side = 'left' }: { side?: 'left' | 'right' }) {
       title: t('schedule'),
       url: '/schedule',
     },
+    // Business only visible to super_admin
+    ...(isSuperAdmin ? [{
+      title: t('business'),
+      url: '/business',
+    }] : []),
     // Settings only visible to super_admin
     ...(isSuperAdmin ? [{
       title: t('settings'),
