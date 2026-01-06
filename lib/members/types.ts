@@ -215,10 +215,13 @@ export interface MembersResponse {
 // Create/Update Types
 // ============================================
 
+export type RelationshipType = 'none' | 'friend' | 'family' | 'influencer';
+
 export interface CreateMemberPayload {
   name: string;
   phoneNumber: string;
   birthDate?: string;
+  relationshipType?: RelationshipType;
 }
 
 export interface UpdateMemberPayload {

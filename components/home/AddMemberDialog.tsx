@@ -7,6 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   ResponsiveDialog,
   ResponsiveDialogContent,
   ResponsiveDialogDescription,
@@ -16,6 +23,7 @@ import {
 } from '@/components/ui/responsive-dialog';
 import { useCreateMember } from '@/lib/members/hooks';
 import { toast } from 'sonner';
+import type { RelationshipType } from '@/lib/members/types';
 
 interface AddMemberDialogProps {
   open: boolean;
@@ -30,6 +38,7 @@ export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [birthDate, setBirthDate] = useState('');
+  const [relationshipType, setRelationshipType] = useState<RelationshipType>('none');
   const [error, setError] = useState<string | null>(null);
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -38,6 +47,7 @@ export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
       setName('');
       setPhoneNumber('');
       setBirthDate('');
+      setRelationshipType('none');
       setError(null);
     }
     onOpenChange(isOpen);
@@ -75,6 +85,7 @@ export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
         name: name.trim(),
         phoneNumber: formattedPhone,
         birthDate: birthDate || undefined,
+        relationshipType,
       });
 
       toast.success('Member created successfully');
@@ -141,6 +152,25 @@ export function AddMemberDialog({ open, onOpenChange }: AddMemberDialogProps) {
                 onChange={(e) => setBirthDate(e.target.value)}
                 max={new Date().toISOString().split('T')[0]}
               />
+            </div>
+
+            {/* Relationship Type */}
+            <div className="space-y-2">
+              <Label htmlFor="relationshipType">Relationship Type</Label>
+              <Select
+                value={relationshipType}
+                onValueChange={(value) => setRelationshipType(value as RelationshipType)}
+              >
+                <SelectTrigger id="relationshipType">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Regular</SelectItem>
+                  <SelectItem value="friend">Friend</SelectItem>
+                  <SelectItem value="family">Family</SelectItem>
+                  <SelectItem value="influencer">Influencer</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Error */}
