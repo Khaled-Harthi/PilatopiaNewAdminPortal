@@ -19,13 +19,16 @@ export interface DateRange {
 // ============================================
 
 export interface BusinessOverview {
-  total_members: number;
+  // Current State Metrics (ignore date range)
   active_members: number;
-  new_registrations: number;
+  expiring_soon: number;
+  churned: number;
+  // Period Activity Metrics (use date range)
+  new_users: number;
+  new_members: number;
   total_revenue: number;
   total_transactions: number;
   avg_transaction: number;
-  purchased_members: number;
 }
 
 export interface ConversionRate {
@@ -37,7 +40,9 @@ export interface ConversionRate {
 export interface RetentionRate {
   total_expired: number;
   retained: number;
+  churned: number;
   retention_rate: number;
+  churn_rate: number;
 }
 
 export interface OverviewResponse {
@@ -75,6 +80,7 @@ export interface PlanBreakdown {
   plan_name: string;
   class_count: number;
   plan_type: 'single_pass' | 'package';
+  is_active: boolean;
   unique_members: number;
   total_purchases: number;
   total_revenue: number;

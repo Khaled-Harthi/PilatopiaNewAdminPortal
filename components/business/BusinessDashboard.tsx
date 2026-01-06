@@ -81,15 +81,14 @@ export function BusinessDashboard() {
       {/* KPI Metrics Grid */}
       <MetricsGrid
         overview={overviewData?.overview}
-        conversion={overviewData?.conversion}
         bookings={bookingsData?.bookings}
         isLoading={isLoadingOverview || isLoadingBookings}
         dateRange={dateRange}
         isAr={isAr}
       />
 
-      {/* Conversion & Retention Rates */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Conversion, Retention & Churn Rates */}
+      <div className="grid gap-4 md:grid-cols-3">
         <RatesCard
           title={isAr ? 'معدل التحويل' : 'Conversion Rate'}
           subtitle={isAr ? 'التسجيل → الشراء' : 'Registration → Purchase'}
@@ -107,6 +106,16 @@ export function BusinessDashboard() {
           numerator={overviewData?.retention.retained || 0}
           denominator={overviewData?.retention.total_expired || 0}
           numeratorLabel={isAr ? 'جددوا' : 'renewed'}
+          denominatorLabel={isAr ? 'منتهي' : 'expired'}
+          isLoading={isLoadingOverview}
+        />
+        <RatesCard
+          title={isAr ? 'معدل التسرب' : 'Churn Rate'}
+          subtitle={isAr ? 'منتهي → لم يجدد' : 'Expired → Did Not Renew'}
+          rate={overviewData?.retention.churn_rate || 0}
+          numerator={overviewData?.retention.churned || 0}
+          denominator={overviewData?.retention.total_expired || 0}
+          numeratorLabel={isAr ? 'تسربوا' : 'churned'}
           denominatorLabel={isAr ? 'منتهي' : 'expired'}
           isLoading={isLoadingOverview}
         />

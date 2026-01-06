@@ -186,7 +186,7 @@ export async function fetchExpiringMembers(): Promise<ExpiringResponse> {
 }
 
 /**
- * Fetches churned members (expired 7 days, no renewal)
+ * Fetches churned members (paid members expired 30 days, no active membership)
  */
 export async function fetchChurnedMembers(): Promise<ChurnedResponse> {
   const response = await apiClient.get<ChurnedResponse>(

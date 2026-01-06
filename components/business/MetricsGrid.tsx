@@ -3,13 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import {
-  Users,
   UserCheck,
   UserPlus,
+  UserMinus,
+  Clock,
   ShoppingCart,
   Banknote,
   Receipt,
-  Calculator,
   Calendar,
   CheckCircle,
   Percent,
@@ -17,11 +17,10 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { MetricCard } from './MetricCard';
-import { BusinessOverview, ConversionRate, BookingMetrics, DateRange } from '@/lib/business/types';
+import { BusinessOverview, BookingMetrics, DateRange } from '@/lib/business/types';
 
 interface MetricsGridProps {
   overview?: BusinessOverview;
-  conversion?: ConversionRate;
   bookings?: BookingMetrics;
   isLoading: boolean;
   dateRange: DateRange;
@@ -68,53 +67,61 @@ export function MetricsGrid({
 
   return (
     <div className="space-y-4">
-      {/* Members Row */}
+      {/* Current State Section - Ignores date filter */}
       <div>
         <h3 className="text-sm font-medium text-muted-foreground mb-3">
-          {isAr ? 'الأعضاء' : 'Members'}
+          {isAr ? 'الحالة الحالية' : 'Current State'}
         </h3>
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-          <MetricCard
-            title={isAr ? 'إجمالي الأعضاء' : 'Total Members'}
-            value={formatNumber(overview?.total_members || 0)}
-            subtitle={isAr ? 'كل الوقت' : 'all time'}
-            icon={Users}
-            isLoading={isLoading}
-            onClick={() => navigateToMembers('all')}
-          />
+        <div className="grid gap-4 grid-cols-3">
           <MetricCard
             title={isAr ? 'الأعضاء النشطين' : 'Active Members'}
             value={formatNumber(overview?.active_members || 0)}
-            subtitle={isAr ? 'عضوية صالحة' : 'valid membership'}
+            subtitle={isAr ? 'لديهم رصيد حصص' : 'has classes remaining'}
             icon={UserCheck}
             isLoading={isLoading}
             onClick={() => navigateToMembers('active')}
           />
           <MetricCard
-            title={isAr ? 'تسجيلات جديدة' : 'New Registrations'}
-            value={formatNumber(overview?.new_registrations || 0)}
-            subtitle={isAr ? 'في الفترة' : 'in period'}
+            title={isAr ? 'تنتهي قريباً' : 'Expiring Soon'}
+            value={formatNumber(overview?.expiring_soon || 0)}
+            subtitle={isAr ? 'خلال 5 أيام' : 'within 5 days'}
+            icon={Clock}
+            isLoading={isLoading}
+            onClick={() => navigateToMembers('expiring')}
+          />
+          <MetricCard
+            title={isAr ? 'المتسربين' : 'Churned'}
+            value={formatNumber(overview?.churned || 0)}
+            subtitle={isAr ? 'آخر 30 يوم' : 'last 30 days'}
+            icon={UserMinus}
+            isLoading={isLoading}
+            onClick={() => navigateToMembers('churned')}
+          />
+        </div>
+      </div>
+
+      {/* Period Activity Section - Respects date filter */}
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3">
+          {isAr ? 'نشاط الفترة' : 'Period Activity'}
+        </h3>
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <MetricCard
+            title={isAr ? 'مستخدمين جدد' : 'New Users'}
+            value={formatNumber(overview?.new_users || 0)}
+            subtitle={isAr ? 'سجلوا في الفترة' : 'registered in period'}
             icon={UserPlus}
             isLoading={isLoading}
             onClick={() => navigateToMembers('new')}
           />
           <MetricCard
-            title={isAr ? 'اشتروا' : 'Purchased'}
-            value={formatNumber(overview?.purchased_members || 0)}
-            subtitle={isAr ? 'مستخدمين مدفوعين' : 'paid users'}
+            title={isAr ? 'أعضاء جدد' : 'New Members'}
+            value={formatNumber(overview?.new_members || 0)}
+            subtitle={isAr ? 'أول شراء' : 'first purchase'}
             icon={ShoppingCart}
             isLoading={isLoading}
             onClick={() => navigateToMembers('purchased')}
           />
-        </div>
-      </div>
-
-      {/* Financials Row */}
-      <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">
-          {isAr ? 'المالية' : 'Financials'}
-        </h3>
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
           <MetricCard
             title={isAr ? 'الإيرادات' : 'Revenue'}
             value={formatCurrency(overview?.total_revenue || 0)}
@@ -127,13 +134,6 @@ export function MetricsGrid({
             value={formatNumber(overview?.total_transactions || 0)}
             subtitle={isAr ? 'في الفترة' : 'in period'}
             icon={Receipt}
-            isLoading={isLoading}
-          />
-          <MetricCard
-            title={isAr ? 'متوسط / معاملة' : 'Avg / Transaction'}
-            value={formatCurrency(overview?.avg_transaction || 0)}
-            subtitle={isAr ? 'في الفترة' : 'in period'}
-            icon={Calculator}
             isLoading={isLoading}
           />
         </div>
