@@ -10,13 +10,21 @@ interface TodaysClientsSectionProps {
   classes: DailyClassDetail[];
 }
 
-interface ClientWithTime {
-  userId: number;
-  userName: string;
-  phoneNumber: string;
+interface ClassBooking {
   classTime: string;
   className: string;
   isCheckedIn: boolean;
+  isPastGracePeriod: boolean;
+}
+
+interface GroupedClient {
+  userId: number;
+  userName: string;
+  phoneNumber: string;
+  bookings: ClassBooking[];
+  allCheckedIn: boolean;
+  hasUncheckedUpcoming: boolean; // Has unchecked class within grace period
+  earliestClassTime: string;
 }
 
 function formatTime(isoString: string): string {
@@ -36,52 +44,76 @@ function generateWhatsAppLink(phoneNumber: string): string {
 export function TodaysClientsSection({ classes }: TodaysClientsSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Get clients sorted by: relevance → class time → unchecked first → alphabetical
-  // Classes past 30-min grace period go to the bottom
-  const clientsWithTime = useMemo(() => {
+  // Group clients by user, combining multiple bookings
+  const groupedClients = useMemo(() => {
     const now = new Date();
     const GRACE_PERIOD_MS = 30 * 60 * 1000; // 30 minutes
 
-    // Sort classes by time
-    const sortedClasses = [...classes].sort((a, b) =>
-      new Date(a.class.schedule_time).getTime() - new Date(b.class.schedule_time).getTime()
-    );
+    // Map to group bookings by userId
+    const clientMap = new Map<number, GroupedClient>();
 
-    // Collect all clients with grace period info
-    const allClients: (ClientWithTime & { isPastGracePeriod: boolean })[] = [];
-
-    sortedClasses.forEach((classDetail) => {
+    classes.forEach((classDetail) => {
       const classStart = new Date(classDetail.class.schedule_time);
       const timeSinceStart = now.getTime() - classStart.getTime();
       const isPastGracePeriod = timeSinceStart >= GRACE_PERIOD_MS;
 
       classDetail.bookings.forEach((booking) => {
-        allClients.push({
-          userId: booking.user_id,
-          userName: booking.user_name,
-          phoneNumber: booking.phone_number,
+        const existing = clientMap.get(booking.user_id);
+        const bookingInfo: ClassBooking = {
           classTime: classDetail.class.schedule_time,
           className: classDetail.class.name || 'Class',
           isCheckedIn: booking.attendance_id !== null,
           isPastGracePeriod,
-        });
+        };
+
+        if (existing) {
+          existing.bookings.push(bookingInfo);
+          // Update earliest class time
+          if (new Date(bookingInfo.classTime) < new Date(existing.earliestClassTime)) {
+            existing.earliestClassTime = bookingInfo.classTime;
+          }
+        } else {
+          clientMap.set(booking.user_id, {
+            userId: booking.user_id,
+            userName: booking.user_name,
+            phoneNumber: booking.phone_number,
+            bookings: [bookingInfo],
+            allCheckedIn: false, // Will calculate after
+            hasUncheckedUpcoming: false, // Will calculate after
+            earliestClassTime: bookingInfo.classTime,
+          });
+        }
       });
     });
 
-    // Sort: past grace period last → class time → unchecked first → alphabetical
-    return allClients.sort((a, b) => {
-      // 1. Classes past grace period go to bottom
-      if (a.isPastGracePeriod !== b.isPastGracePeriod) {
-        return a.isPastGracePeriod ? 1 : -1;
+    // Calculate derived properties and sort bookings within each client
+    const clients = Array.from(clientMap.values()).map((client) => {
+      // Sort bookings by time
+      client.bookings.sort((a, b) =>
+        new Date(a.classTime).getTime() - new Date(b.classTime).getTime()
+      );
+      client.allCheckedIn = client.bookings.every((b) => b.isCheckedIn);
+      client.hasUncheckedUpcoming = client.bookings.some(
+        (b) => !b.isCheckedIn && !b.isPastGracePeriod
+      );
+      return client;
+    });
+
+    // Sort: clients with unchecked upcoming first → by earliest class time → alphabetical
+    return clients.sort((a, b) => {
+      // 1. Clients with unchecked upcoming classes first
+      if (a.hasUncheckedUpcoming !== b.hasUncheckedUpcoming) {
+        return a.hasUncheckedUpcoming ? -1 : 1;
       }
 
-      // 2. By class time (earlier first)
-      const timeDiff = new Date(a.classTime).getTime() - new Date(b.classTime).getTime();
+      // 2. By earliest class time
+      const timeDiff =
+        new Date(a.earliestClassTime).getTime() - new Date(b.earliestClassTime).getTime();
       if (timeDiff !== 0) return timeDiff;
 
       // 3. Unchecked clients first
-      if (a.isCheckedIn !== b.isCheckedIn) {
-        return a.isCheckedIn ? 1 : -1;
+      if (a.allCheckedIn !== b.allCheckedIn) {
+        return a.allCheckedIn ? 1 : -1;
       }
 
       // 4. Alphabetical by name
@@ -90,11 +122,11 @@ export function TodaysClientsSection({ classes }: TodaysClientsSectionProps) {
   }, [classes]);
 
   const displayLimit = 5;
-  const hasMore = clientsWithTime.length > displayLimit;
-  const displayedClients = isExpanded ? clientsWithTime : clientsWithTime.slice(0, displayLimit);
-  const remainingCount = clientsWithTime.length - displayLimit;
+  const hasMore = groupedClients.length > displayLimit;
+  const displayedClients = isExpanded ? groupedClients : groupedClients.slice(0, displayLimit);
+  const remainingCount = groupedClients.length - displayLimit;
 
-  if (clientsWithTime.length === 0) {
+  if (groupedClients.length === 0) {
     return (
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -115,26 +147,30 @@ export function TodaysClientsSection({ classes }: TodaysClientsSectionProps) {
         <Users className="h-4 w-4 text-muted-foreground" />
         <span className="font-medium text-sm">Today's Clients</span>
         <span className="text-xs text-muted-foreground">
-          ({clientsWithTime.length})
+          ({groupedClients.length})
         </span>
       </div>
 
       {/* Client List */}
       <div className="space-y-1">
-        {displayedClients.map((client, index) => (
+        {displayedClients.map((client) => (
           <div
-            key={`${client.userId}-${client.classTime}-${index}`}
+            key={client.userId}
             className={`flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-muted/50 transition-colors ${
-              client.isCheckedIn ? 'opacity-50' : ''
+              client.allCheckedIn ? 'opacity-50' : ''
             }`}
           >
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs text-muted-foreground w-16 shrink-0">
-                {formatTime(client.classTime)}
-              </span>
-              {client.isCheckedIn && (
-                <Check className="h-3 w-3 text-green-600 shrink-0" />
-              )}
+              <div className="text-xs text-muted-foreground shrink-0 min-w-16">
+                {client.bookings.map((booking, idx) => (
+                  <span key={idx} className="flex items-center gap-0.5">
+                    {booking.isCheckedIn && (
+                      <Check className="h-2.5 w-2.5 text-green-600 inline" />
+                    )}
+                    {formatTime(booking.classTime)}
+                  </span>
+                ))}
+              </div>
               <Link
                 href={`/members/${client.userId}`}
                 className="text-sm truncate hover:underline flex items-center gap-1"
@@ -143,7 +179,7 @@ export function TodaysClientsSection({ classes }: TodaysClientsSectionProps) {
                 <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0" />
               </Link>
             </div>
-            {!client.isCheckedIn && (
+            {!client.allCheckedIn && (
               <Button
                 variant="ghost"
                 size="sm"
