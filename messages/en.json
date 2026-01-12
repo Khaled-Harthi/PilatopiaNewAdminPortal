@@ -229,9 +229,9 @@
         "title": "Payment Details",
         "paymentMethodLabel": "Payment Method",
         "paymentMethods": {
-          "cash": "Cash",
-          "card": "Card",
-          "bankTransfer": "Bank Transfer"
+          "mada": "Mada",
+          "creditCard": "Credit Card",
+          "cash": "Cash"
         },
         "startDateLabel": "Start Date",
         "notesLabel": "Notes (Optional)",

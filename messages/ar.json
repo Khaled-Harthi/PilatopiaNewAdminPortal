@@ -229,9 +229,9 @@
         "title": "تفاصيل الدفع",
         "paymentMethodLabel": "طريقة الدفع",
         "paymentMethods": {
-          "cash": "نقدي",
-          "card": "بطاقة",
-          "bankTransfer": "تحويل بنكي"
+          "mada": "مدى",
+          "creditCard": "بطاقة ائتمان",
+          "cash": "نقدي"
         },
         "startDateLabel": "تاريخ البدء",
         "notesLabel": "ملاحظات (اختياري)",

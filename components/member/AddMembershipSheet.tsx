@@ -65,7 +65,7 @@ export function AddMembershipSheet({
   const [promoCode, setPromoCode] = useState('');
   const [promoValidation, setPromoValidation] = useState<PromoCodeValidation | null>(null);
   const [isValidatingPromo, setIsValidatingPromo] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [paymentMethod, setPaymentMethod] = useState('mada');
   const [startDateOption, setStartDateOption] = useState('tomorrow');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -296,9 +296,9 @@ export function AddMembershipSheet({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="mada">Mada</SelectItem>
+                  <SelectItem value="credit_card">Credit Card</SelectItem>
                   <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                  <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
